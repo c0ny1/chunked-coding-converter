@@ -10,7 +10,7 @@ import java.util.concurrent.ScheduledExecutorService;
 public class BurpExtender implements IBurpExtender,IHttpListener,IProxyListener {
     private IBurpExtenderCallbacks callbacks;
     private IExtensionHelpers helpers;
-    private String extensionName = "chunked-converter";
+    private String extensionName = "Chunked coding converter";
     private String version ="0.1";
     private PrintWriter stdout;
     private PrintWriter stderr;
