@@ -1,4 +1,4 @@
-# chunked-coding-converter|Burp suite 分块传输辅助插件
+# Chunked coding converter
 
 本插件主要用于分块传输绕WAF，不了解分块传输绕WAF的请阅读文末的文章。
 
