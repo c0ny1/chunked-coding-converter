@@ -1,7 +1,7 @@
 package burp;
 
 public class Config {
-    public static int splite_len = 2;
+    public static Integer splite_len = 2;
     public static boolean isComment = true;
     public static boolean act_on_all_tools = false;
     public static boolean act_on_target = false;

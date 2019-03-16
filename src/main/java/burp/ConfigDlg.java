@@ -107,7 +107,7 @@ public class ConfigDlg extends JDialog {
         btSave.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Config.splite_len = (int)spSplitLen.getValue();
+                Config.splite_len = (Integer) spSplitLen.getValue();
                 Config.isComment = cbComment.isSelected();
                 Config.act_on_all_tools = chkAllTools.isSelected();
                 Config.act_on_target = chkTarget.isSelected();
