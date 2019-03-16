@@ -7,11 +7,13 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class Menu implements IContextMenuFactory {
     private IBurpExtenderCallbacks callbacks;
     private final IExtensionHelpers m_helpers;
     private PrintWriter stdout;
     private PrintWriter stderr;
+
 
     public Menu(IBurpExtenderCallbacks callbacks) {
         this.callbacks = callbacks;
@@ -19,6 +21,7 @@ public class Menu implements IContextMenuFactory {
         this.stdout = new PrintWriter(callbacks.getStdout(),true);
         this.stderr = new PrintWriter(callbacks.getStderr(),true);
     }
+
 
     public List<JMenuItem> createMenuItems(final IContextMenuInvocation invocation)
     {
@@ -37,18 +40,18 @@ public class Menu implements IContextMenuFactory {
 
         encodeChunked.addActionListener(new ActionListener(){
 
-        public void actionPerformed(ActionEvent arg0) {
-            IHttpRequestResponse iReqResp = invocation.getSelectedMessages()[0];
-            try {
-                byte[] request = Transfer.encoding(m_helpers, iReqResp, Config.splite_len,Config.isComment);
-                if (request != null) {
-                    iReqResp.setRequest(request);
+            public void actionPerformed(ActionEvent arg0) {
+                IHttpRequestResponse iReqResp = invocation.getSelectedMessages()[0];
+                try {
+                    byte[] request = Transfer.encoding(m_helpers, iReqResp, Config.min_chunked_len,Config.max_chunked_len,Config.addComment,Config.min_comment_len,Config.max_comment_len);
+                    if (request != null) {
+                        iReqResp.setRequest(request);
+                    }
+                } catch (Exception e) {
+                    stderr.println(e.getMessage());
                 }
-            } catch (Exception e) {
-                stderr.println(e.getMessage());
             }
-        }
-    });
+        });
 
         decodeChunked.addActionListener(new ActionListener(){
 

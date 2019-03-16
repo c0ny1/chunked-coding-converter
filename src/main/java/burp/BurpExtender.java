@@ -1,11 +1,10 @@
 package burp;
 
-
 import java.io.PrintWriter;
-import java.net.URL;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+
 
 public class BurpExtender implements IBurpExtender,IHttpListener,IProxyListener {
     private IBurpExtenderCallbacks callbacks;
@@ -14,8 +13,7 @@ public class BurpExtender implements IBurpExtender,IHttpListener,IProxyListener 
     private String version ="0.1";
     private PrintWriter stdout;
     private PrintWriter stderr;
-    private ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-    private ExecutorService executorService = Executors.newSingleThreadExecutor();
+
     @Override
     public void registerExtenderCallbacks(IBurpExtenderCallbacks callbacks) {
         this.callbacks = callbacks;
@@ -29,6 +27,7 @@ public class BurpExtender implements IBurpExtender,IHttpListener,IProxyListener 
         stdout.println(getBanner());
     }
 
+
     @Override
     public void processHttpMessage(int toolFlag, boolean messageIsRequest, IHttpRequestResponse messageInfo) {
         //代理不走这，否则两次修改会导致数据包存在问题
@@ -40,7 +39,7 @@ public class BurpExtender implements IBurpExtender,IHttpListener,IProxyListener 
 
             if(reqInfo.getMethod().equals("POST") && reqInfo.getContentType() == IRequestInfo.CONTENT_TYPE_URL_ENCODED){
                 try {
-                    byte[] request = Transfer.encoding(helpers, messageInfo, Config.splite_len,Config.isComment);
+                    byte[] request = Transfer.encoding(helpers, messageInfo, Config.min_chunked_len,Config.max_chunked_len,Config.addComment,Config.min_comment_len,Config.max_comment_len);
                     if (request != null) {
                         messageInfo.setRequest(request);
                     }
@@ -50,6 +49,7 @@ public class BurpExtender implements IBurpExtender,IHttpListener,IProxyListener 
             }
         }
     }
+
 
     @Override
     public void processProxyMessage(final boolean messageIsRequest, final IInterceptedProxyMessage proxyMessage) {
@@ -59,7 +59,7 @@ public class BurpExtender implements IBurpExtender,IHttpListener,IProxyListener 
 
             if(reqInfo.getMethod().equals("POST") && reqInfo.getContentType() == IRequestInfo.CONTENT_TYPE_URL_ENCODED){
                 try {
-                    byte[] request = Transfer.encoding(helpers, messageInfo, Config.splite_len,Config.isComment);
+                    byte[] request = Transfer.encoding(helpers, messageInfo, Config.min_chunked_len,Config.max_chunked_len,Config.addComment,Config.min_comment_len,Config.max_comment_len);
                     if (request != null) {
                         messageInfo.setRequest(request);
                     }
@@ -69,6 +69,7 @@ public class BurpExtender implements IBurpExtender,IHttpListener,IProxyListener 
             }
         }
     }
+
 
     private boolean isValidTool(int toolFlag){
         return (Config.act_on_all_tools ||
@@ -82,10 +83,15 @@ public class BurpExtender implements IBurpExtender,IHttpListener,IProxyListener 
                 (Config.act_on_target && toolFlag== IBurpExtenderCallbacks.TOOL_TARGET));
     }
 
+
+    /**
+     * 插件Banner信息
+     * @return
+     */
     public String getBanner(){
         String bannerInfo =
                 "[+]\n"
-                        + "[+] ###############################################\n"
+                        + "[+] ##############################################\n"
                         + "[+]    " + extensionName + " v" + version +"\n"
                         + "[+]    anthor: c0ny1\n"
                         + "[+]    email:  root@gv7.me\n"

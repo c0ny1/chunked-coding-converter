@@ -5,15 +5,21 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+
 public class ConfigDlg extends JDialog {
     private final JPanel mainPanel = new JPanel();
     private final JPanel topPanel =  new JPanel();
     private final JPanel centerPanel = new JPanel();
     private final JPanel bottomPanel = new JPanel();;
-    private final JLabel lbSplitLen = new JLabel("Length of chunked:");;
-    private final JSpinner spSplitLen = new JSpinner(new SpinnerNumberModel(2, 1, 100, 1));
-    private final JLabel lbRange = new JLabel("(1-100)");
+    private final JLabel lbSplitLen = new JLabel("Length of chunked:");
+    private final JSpinner spMinChunkedLen = new JSpinner(new SpinnerNumberModel(1, 1, 100, 1));
+    private final JSpinner spMaxChunkedLen = new JSpinner(new SpinnerNumberModel(3, 1, 100, 1));
     private final JCheckBox cbComment = new JCheckBox("Add comments");
+    private final JLabel lbCommentLen = new JLabel("Length of comment:");
+    private final JSpinner spMinCommentLen = new JSpinner(new SpinnerNumberModel(5, 1, 50, 1));
+    private final JLabel lbCommentLenRangeSymbols = new JLabel("-");
+    private final JSpinner spMaxCommentLen = new JSpinner(new SpinnerNumberModel(25, 1, 50, 1));
+    private final JLabel lbCommentLenRange = new JLabel("(1-50)");
     private final JLabel lbActOnModel = new JLabel("Act on:");
     private final JCheckBox chkAllTools = new JCheckBox("All Tools");
     private final JCheckBox chkSpider = new JCheckBox("Spider");
@@ -34,13 +40,27 @@ public class ConfigDlg extends JDialog {
         initValue();
         this.setTitle("Chunked coding converter config");
     }
+
+
+    /**
+     * 初始化UI
+     */
     private void initGUI(){
         topPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
         topPanel.add(lbSplitLen);
-        topPanel.add(spSplitLen);
-        topPanel.add(lbRange);
+        topPanel.add(spMinChunkedLen);
+        topPanel.add(new JLabel("-"));
+        topPanel.add(spMaxChunkedLen);
+        topPanel.add(new JLabel("(1-100)"));
+        topPanel.add(Box.createHorizontalStrut(20));
         topPanel.add(cbComment);
         cbComment.setSelected(true);
+        topPanel.add(Box.createHorizontalStrut(5));
+        topPanel.add(lbCommentLen);
+        topPanel.add(spMinCommentLen);
+        topPanel.add(lbCommentLenRangeSymbols);
+        topPanel.add(spMaxCommentLen);
+        topPanel.add(lbCommentLenRange);
 
         centerPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
         centerPanel.add(lbActOnModel);
@@ -64,14 +84,17 @@ public class ConfigDlg extends JDialog {
         mainPanel.add(bottomPanel,BorderLayout.SOUTH);
 
         this.setModal(true);
-        this.setSize(640,150);
-        //this.setSize(mainPanel.getWidth(),mainPanel.getHeight());
+        this.setSize(680,150);
         Dimension screensize=Toolkit.getDefaultToolkit().getScreenSize();
         this.setBounds(screensize.width/2-this.getWidth()/2,screensize.height/2-this.getHeight()/2,this.getWidth(),this.getHeight());
         this.setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         this.add(mainPanel);
     }
 
+
+    /**
+     * 初始化事件
+     */
     private void initEvent(){
         chkAllTools.addActionListener(new ActionListener() {
             @Override
@@ -97,6 +120,26 @@ public class ConfigDlg extends JDialog {
             }
         });
 
+        cbComment.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(cbComment.isSelected()){
+                    lbCommentLen.setEnabled(true);
+                    spMinCommentLen.setEnabled(true);
+                    lbCommentLenRangeSymbols.setEnabled(true);
+                    spMaxCommentLen.setEnabled(true);
+                    lbCommentLenRange.setEnabled(true);
+
+                }else{
+                    lbCommentLen.setEnabled(false);
+                    spMinCommentLen.setEnabled(false);
+                    lbCommentLenRangeSymbols.setEnabled(false);
+                    spMaxCommentLen.setEnabled(false);
+                    lbCommentLenRange.setEnabled(false);
+                }
+            }
+        });
+
         btCancel.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -107,8 +150,26 @@ public class ConfigDlg extends JDialog {
         btSave.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Config.splite_len = (Integer) spSplitLen.getValue();
-                Config.isComment = cbComment.isSelected();
+                Integer min_chunked_len = (Integer)spMinChunkedLen.getValue();
+                Integer max_chunked_max = (Integer)spMaxChunkedLen.getValue();
+                Integer min_comment_len = (Integer)spMinCommentLen.getValue();
+                Integer max_comment_len = (Integer)spMaxCommentLen.getValue();
+
+                if(min_chunked_len > max_chunked_max){
+                    JOptionPane.showConfirmDialog(ConfigDlg.this,"Please set minimum chunked length less than maximum！","Warning",JOptionPane.CLOSED_OPTION,JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+
+                if(min_comment_len > max_comment_len){
+                    JOptionPane.showConfirmDialog(ConfigDlg.this,"Please set the minimum comment length to be less than the maximum!","Warning",JOptionPane.CLOSED_OPTION,JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+
+                Config.min_chunked_len = min_chunked_len;
+                Config.max_chunked_len = max_chunked_max;
+                Config.addComment = cbComment.isSelected();
+                Config.min_comment_len = min_comment_len;
+                Config.max_comment_len = max_comment_len;
                 Config.act_on_all_tools = chkAllTools.isSelected();
                 Config.act_on_target = chkTarget.isSelected();
                 Config.act_on_proxy = chkProxy.isSelected();
@@ -124,9 +185,30 @@ public class ConfigDlg extends JDialog {
 
     }
 
+
+    /**
+     * 为控件赋值
+     */
     public void initValue(){
-        spSplitLen.setValue(Config.splite_len);
-        cbComment.setSelected(Config.isComment);
+        spMinChunkedLen.setValue(Config.min_chunked_len);
+        spMaxChunkedLen.setValue(Config.max_chunked_len);
+        cbComment.setSelected(Config.addComment);
+        if(cbComment.isSelected()){
+            lbCommentLen.setEnabled(true);
+            spMinCommentLen.setEnabled(true);
+            lbCommentLenRangeSymbols.setEnabled(true);
+            spMaxCommentLen.setEnabled(true);
+            lbCommentLenRange.setEnabled(true);
+
+        }else{
+            lbCommentLen.setEnabled(false);
+            spMinCommentLen.setEnabled(false);
+            lbCommentLenRangeSymbols.setEnabled(false);
+            spMaxCommentLen.setEnabled(false);
+            lbCommentLenRange.setEnabled(false);
+        }
+        spMinCommentLen.setValue(Config.min_comment_len);
+        spMaxCommentLen.setValue(Config.max_comment_len);
         chkAllTools.setSelected(Config.act_on_all_tools);
         chkTarget.setSelected(Config.act_on_target);
         chkProxy.setSelected(Config.act_on_proxy);

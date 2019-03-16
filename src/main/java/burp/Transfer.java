@@ -4,7 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.*;
 
 public class Transfer {
-    public static  byte[] encoding(IExtensionHelpers helpers, IHttpRequestResponse requestResponse, int split_len, boolean isComment) throws UnsupportedEncodingException {
+    public static  byte[] encoding(IExtensionHelpers helpers, IHttpRequestResponse requestResponse,int minChunkedLen, int maxChunkedLen, boolean isComment,int minCommentLen,int maxCommentLen) throws UnsupportedEncodingException {
         byte[] request = requestResponse.getRequest();
         IRequestInfo requestInfo = helpers.analyzeRequest(request);
         int bodyOffset = requestInfo.getBodyOffset();
@@ -15,11 +15,12 @@ public class Transfer {
             return request;
         }
 
-        List<String> str_list = Util.getStrList(body,Config.splite_len);
+        List<String> str_list = Util.getStrList1(body,minChunkedLen,maxChunkedLen);
         String encoding_body = "";
         for(String str:str_list){
-            if(Config.isComment){
-                encoding_body += String.format("%s;%s",Util.decimalToHex(str.length()),Util.getRandomString(10));
+            if(isComment){
+                int commentLen = Util.getRandomNum(minCommentLen,maxCommentLen);
+                encoding_body += String.format("%s;%s",Util.decimalToHex(str.length()),Util.getRandomString(commentLen));
             }else{
                 encoding_body += Util.decimalToHex(str.length());
             }
