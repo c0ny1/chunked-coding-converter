@@ -23,12 +23,8 @@ public class Menu implements IContextMenuFactory {
     }
 
 
-    public List<JMenuItem> createMenuItems(final IContextMenuInvocation invocation)
-    {
+    public List<JMenuItem> createMenuItems(final IContextMenuInvocation invocation) {
         List<JMenuItem> menus = new ArrayList();
-        if ((invocation.getToolFlag() != 32) && (invocation.getInvocationContext() != 0)) {
-            return menus;
-        }
         JMenu chunkedMenu = new JMenu("Chunked coding converter");
         JMenuItem encodeChunked = new JMenuItem("Encoding request body");
         JMenuItem decodeChunked = new JMenuItem("Decoding request body");
@@ -37,6 +33,12 @@ public class Menu implements IContextMenuFactory {
         chunkedMenu.add(decodeChunked);
         chunkedMenu.addSeparator();
         chunkedMenu.add(config);
+
+        //若数据包无法编辑，则将编码解码菜单项设置为禁用
+        if(invocation.getInvocationContext() != IContextMenuInvocation.CONTEXT_MESSAGE_EDITOR_REQUEST){
+            encodeChunked.setEnabled(false);
+            decodeChunked.setEnabled(false);
+        }
 
         encodeChunked.addActionListener(new ActionListener(){
 
