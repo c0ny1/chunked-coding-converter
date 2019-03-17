@@ -14,6 +14,12 @@
     </properties>
 
     <dependencies>
+        <!-- https://mvnrepository.com/artifact/net.portswigger.burp.extender/burp-extender-api -->
+        <dependency>
+            <groupId>net.portswigger.burp.extender</groupId>
+            <artifactId>burp-extender-api</artifactId>
+            <version>1.7.22</version>
+        </dependency>
     </dependencies>
 
     <build>
