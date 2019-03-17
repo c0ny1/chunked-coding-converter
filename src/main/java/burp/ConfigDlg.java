@@ -11,7 +11,7 @@ public class ConfigDlg extends JDialog {
     private final JPanel topPanel =  new JPanel();
     private final JPanel centerPanel = new JPanel();
     private final JPanel bottomPanel = new JPanel();;
-    private final JLabel lbSplitLen = new JLabel("Length of chunked:");
+    private final JLabel lbChunkedLen = new JLabel("Length of chunked:");
     private final JSpinner spMinChunkedLen = new JSpinner(new SpinnerNumberModel(1, 1, 100, 1));
     private final JSpinner spMaxChunkedLen = new JSpinner(new SpinnerNumberModel(3, 1, 100, 1));
     private final JCheckBox cbComment = new JCheckBox("Add comments");
@@ -47,7 +47,7 @@ public class ConfigDlg extends JDialog {
      */
     private void initGUI(){
         topPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-        topPanel.add(lbSplitLen);
+        topPanel.add(lbChunkedLen);
         topPanel.add(spMinChunkedLen);
         topPanel.add(new JLabel("-"));
         topPanel.add(spMaxChunkedLen);
@@ -129,7 +129,6 @@ public class ConfigDlg extends JDialog {
                     lbCommentLenRangeSymbols.setEnabled(true);
                     spMaxCommentLen.setEnabled(true);
                     lbCommentLenRange.setEnabled(true);
-
                 }else{
                     lbCommentLen.setEnabled(false);
                     spMinCommentLen.setEnabled(false);
@@ -165,24 +164,23 @@ public class ConfigDlg extends JDialog {
                     return;
                 }
 
-                Config.min_chunked_len = min_chunked_len;
-                Config.max_chunked_len = max_chunked_max;
-                Config.addComment = cbComment.isSelected();
-                Config.min_comment_len = min_comment_len;
-                Config.max_comment_len = max_comment_len;
-                Config.act_on_all_tools = chkAllTools.isSelected();
-                Config.act_on_target = chkTarget.isSelected();
-                Config.act_on_proxy = chkProxy.isSelected();
-                Config.act_on_spider = chkSpider.isSelected();
-                Config.act_on_intruder = chkIntruder.isSelected();
-                Config.act_on_repeater = chkRepeater.isSelected();
-                Config.act_on_scanner = chkScanner.isSelected();
-                Config.act_on_sequencer = chkSequencer.isSelected();
-                Config.act_on_extender = chkExtender.isSelected();
+                Config.setMin_chunked_len(min_chunked_len);
+                Config.setMax_chunked_len(max_chunked_max);
+                Config.setAddComment(cbComment.isSelected());
+                Config.setMin_comment_len(min_comment_len);
+                Config.setMax_comment_len(max_comment_len);
+                Config.setAct_on_all_tools(chkAllTools.isSelected());
+                Config.setAct_on_target(chkTarget.isSelected());
+                Config.setAct_on_proxy(chkProxy.isSelected());
+                Config.setAct_on_spider(chkSpider.isSelected());
+                Config.setAct_on_intruder(chkIntruder.isSelected());
+                Config.setAct_on_repeater(chkRepeater.isSelected());
+                Config.setAct_on_scanner(chkScanner.isSelected());
+                Config.setAct_on_sequencer(chkSequencer.isSelected());
+                Config.setAct_on_extender(chkExtender.isSelected());
                 ConfigDlg.this.dispose();
             }
         });
-
     }
 
 
@@ -190,16 +188,15 @@ public class ConfigDlg extends JDialog {
      * 为控件赋值
      */
     public void initValue(){
-        spMinChunkedLen.setValue(Config.min_chunked_len);
-        spMaxChunkedLen.setValue(Config.max_chunked_len);
-        cbComment.setSelected(Config.addComment);
+        spMinChunkedLen.setValue(Config.getMin_chunked_len());
+        spMaxChunkedLen.setValue(Config.getMax_chunked_len());
+        cbComment.setSelected(Config.isAddComment());
         if(cbComment.isSelected()){
             lbCommentLen.setEnabled(true);
             spMinCommentLen.setEnabled(true);
             lbCommentLenRangeSymbols.setEnabled(true);
             spMaxCommentLen.setEnabled(true);
             lbCommentLenRange.setEnabled(true);
-
         }else{
             lbCommentLen.setEnabled(false);
             spMinCommentLen.setEnabled(false);
@@ -207,16 +204,16 @@ public class ConfigDlg extends JDialog {
             spMaxCommentLen.setEnabled(false);
             lbCommentLenRange.setEnabled(false);
         }
-        spMinCommentLen.setValue(Config.min_comment_len);
-        spMaxCommentLen.setValue(Config.max_comment_len);
-        chkAllTools.setSelected(Config.act_on_all_tools);
-        chkTarget.setSelected(Config.act_on_target);
-        chkProxy.setSelected(Config.act_on_proxy);
-        chkSpider.setSelected(Config.act_on_spider);
-        chkIntruder.setSelected(Config.act_on_intruder);
-        chkRepeater.setSelected(Config.act_on_repeater);
-        chkScanner.setSelected(Config.act_on_scanner);
-        chkSequencer.setSelected(Config.act_on_sequencer);
-        chkExtender.setSelected(Config.act_on_extender);
+        spMinCommentLen.setValue(Config.getMin_comment_len());
+        spMaxCommentLen.setValue(Config.getMax_comment_len());
+        chkAllTools.setSelected(Config.isAct_on_all_tools());
+        chkTarget.setSelected(Config.isAct_on_target());
+        chkProxy.setSelected(Config.isAct_on_proxy());
+        chkSpider.setSelected(Config.isAct_on_spider());
+        chkIntruder.setSelected(Config.isAct_on_intruder());
+        chkRepeater.setSelected(Config.isAct_on_repeater());
+        chkScanner.setSelected(Config.isAct_on_scanner());
+        chkSequencer.setSelected(Config.isAct_on_sequencer());
+        chkExtender.setSelected(Config.isAct_on_extender());
     }
 }

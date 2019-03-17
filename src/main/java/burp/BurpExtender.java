@@ -1,18 +1,14 @@
 package burp;
 
 import java.io.PrintWriter;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-
 
 public class BurpExtender implements IBurpExtender,IHttpListener,IProxyListener {
-    private IBurpExtenderCallbacks callbacks;
+    public static IBurpExtenderCallbacks callbacks;
     private IExtensionHelpers helpers;
     private String extensionName = "Chunked coding converter";
     private String version ="0.1";
-    private PrintWriter stdout;
-    private PrintWriter stderr;
+    public static PrintWriter stdout;
+    public static PrintWriter stderr;
 
     @Override
     public void registerExtenderCallbacks(IBurpExtenderCallbacks callbacks) {
@@ -33,18 +29,15 @@ public class BurpExtender implements IBurpExtender,IHttpListener,IProxyListener 
         //代理不走这，否则两次修改会导致数据包存在问题
         if(messageIsRequest && isValidTool(toolFlag) && (toolFlag != IBurpExtenderCallbacks.TOOL_PROXY)){
             IRequestInfo reqInfo = helpers.analyzeRequest(messageInfo.getRequest());
-            //stdout.println(messageInfo.getRequest().toString());
-            //stdout.println(reqInfo.getContentType());
-            //stdout.println(reqInfo.getMethod());
 
             if(reqInfo.getMethod().equals("POST") && reqInfo.getContentType() == IRequestInfo.CONTENT_TYPE_URL_ENCODED){
                 try {
-                    byte[] request = Transfer.encoding(helpers, messageInfo, Config.min_chunked_len,Config.max_chunked_len,Config.addComment,Config.min_comment_len,Config.max_comment_len);
+                    byte[] request = Transfer.encoding(helpers, messageInfo, Config.getMin_chunked_len(),Config.getMax_chunked_len(),Config.isAddComment(),Config.getMin_comment_len(),Config.getMax_comment_len());
                     if (request != null) {
                         messageInfo.setRequest(request);
                     }
                 } catch (Exception e) {
-                    stderr.println(e.getMessage());
+                    e.printStackTrace(stderr);
                 }
             }
         }
@@ -59,12 +52,12 @@ public class BurpExtender implements IBurpExtender,IHttpListener,IProxyListener 
 
             if(reqInfo.getMethod().equals("POST") && reqInfo.getContentType() == IRequestInfo.CONTENT_TYPE_URL_ENCODED){
                 try {
-                    byte[] request = Transfer.encoding(helpers, messageInfo, Config.min_chunked_len,Config.max_chunked_len,Config.addComment,Config.min_comment_len,Config.max_comment_len);
+                    byte[] request = Transfer.encoding(helpers, messageInfo, Config.getMin_chunked_len(),Config.getMax_chunked_len(),Config.isAddComment(),Config.getMin_comment_len(),Config.getMax_comment_len());
                     if (request != null) {
                         messageInfo.setRequest(request);
                     }
                 } catch (Exception e) {
-                    stderr.println(e.getMessage());
+                    e.printStackTrace(stderr);
                 }
             }
         }
@@ -72,15 +65,15 @@ public class BurpExtender implements IBurpExtender,IHttpListener,IProxyListener 
 
 
     private boolean isValidTool(int toolFlag){
-        return (Config.act_on_all_tools ||
-                (Config.act_on_proxy && toolFlag== IBurpExtenderCallbacks.TOOL_PROXY) ||
-                (Config.act_on_intruder && toolFlag== IBurpExtenderCallbacks.TOOL_INTRUDER) ||
-                (Config.act_on_repeater && toolFlag== IBurpExtenderCallbacks.TOOL_REPEATER) ||
-                (Config.act_on_scanner && toolFlag== IBurpExtenderCallbacks.TOOL_SCANNER) ||
-                (Config.act_on_sequencer && toolFlag== IBurpExtenderCallbacks.TOOL_SEQUENCER) ||
-                (Config.act_on_spider && toolFlag== IBurpExtenderCallbacks.TOOL_SPIDER) ||
-                (Config.act_on_extender && toolFlag== IBurpExtenderCallbacks.TOOL_EXTENDER) ||
-                (Config.act_on_target && toolFlag== IBurpExtenderCallbacks.TOOL_TARGET));
+        return (Config.isAct_on_all_tools() ||
+                (Config.isAct_on_proxy() && toolFlag== IBurpExtenderCallbacks.TOOL_PROXY) ||
+                (Config.isAct_on_intruder() && toolFlag== IBurpExtenderCallbacks.TOOL_INTRUDER) ||
+                (Config.isAct_on_repeater() && toolFlag== IBurpExtenderCallbacks.TOOL_REPEATER) ||
+                (Config.isAct_on_scanner() && toolFlag== IBurpExtenderCallbacks.TOOL_SCANNER) ||
+                (Config.isAct_on_sequencer() && toolFlag== IBurpExtenderCallbacks.TOOL_SEQUENCER) ||
+                (Config.isAct_on_spider() && toolFlag== IBurpExtenderCallbacks.TOOL_SPIDER) ||
+                (Config.isAct_on_extender() && toolFlag== IBurpExtenderCallbacks.TOOL_EXTENDER) ||
+                (Config.isAct_on_target() && toolFlag== IBurpExtenderCallbacks.TOOL_TARGET));
     }
 
 

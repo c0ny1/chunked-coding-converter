@@ -45,7 +45,7 @@ public class Menu implements IContextMenuFactory {
             public void actionPerformed(ActionEvent arg0) {
                 IHttpRequestResponse iReqResp = invocation.getSelectedMessages()[0];
                 try {
-                    byte[] request = Transfer.encoding(m_helpers, iReqResp, Config.min_chunked_len,Config.max_chunked_len,Config.addComment,Config.min_comment_len,Config.max_comment_len);
+                    byte[] request = Transfer.encoding(m_helpers, iReqResp, Config.getMin_chunked_len(),Config.getMax_chunked_len(),Config.isAddComment(),Config.getMin_comment_len(),Config.getMax_comment_len());
                     if (request != null) {
                         iReqResp.setRequest(request);
                     }
@@ -73,9 +73,13 @@ public class Menu implements IContextMenuFactory {
         config.addActionListener(new ActionListener(){
 
             public void actionPerformed(ActionEvent arg0) {
-                ConfigDlg dlg = new ConfigDlg();
-                callbacks.customizeUiComponent(dlg);
-                dlg.setVisible(true);
+                try {
+                    ConfigDlg dlg = new ConfigDlg();
+                    callbacks.customizeUiComponent(dlg);
+                    dlg.setVisible(true);
+                }catch (Exception e){
+                    e.printStackTrace(stderr);
+                }
             }
         });
 
