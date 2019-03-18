@@ -51,6 +51,12 @@ public class Menu implements IContextMenuFactory {
                     return;
                 }
 
+                // 不重复编码
+                if(Transfer.isChunked(iReqResp)){
+                    JOptionPane.showConfirmDialog(null,"The request has been chunked encoded，Do not repeat the encoding！","Warning",JOptionPane.CLOSED_OPTION,JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+
                 try {
                     byte[] request = Transfer.encoding(m_helpers, iReqResp, Config.getMin_chunked_len(),Config.getMax_chunked_len(),Config.isAddComment(),Config.getMin_comment_len(),Config.getMax_comment_len());
                     if (request != null) {
@@ -66,6 +72,13 @@ public class Menu implements IContextMenuFactory {
 
             public void actionPerformed(ActionEvent arg0) {
                 IHttpRequestResponse iReqResp = invocation.getSelectedMessages()[0];
+
+                // 进制对未编码请求解码
+                if(!Transfer.isChunked(iReqResp)){
+                    JOptionPane.showConfirmDialog(null,"The request is unencoded and cannot be decoded!","Warning",JOptionPane.CLOSED_OPTION,JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+
                 try {
                     byte[] request = Transfer.decoding(m_helpers,iReqResp);
                     if (request != null) {

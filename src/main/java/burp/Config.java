@@ -33,7 +33,6 @@ public class Config {
 
     public static Integer getMax_chunked_len() {
         String val = BurpExtender.callbacks.loadExtensionSetting("max_chunked_len");
-        BurpExtender.stdout.println("[+] max_chunked_len: " + val);
         try {
             return Integer.valueOf(val);
         }catch(Exception e){

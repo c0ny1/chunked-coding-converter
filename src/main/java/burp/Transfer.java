@@ -15,6 +15,18 @@ public class Transfer {
             return request;
         }
 
+        List<String> headers = helpers.analyzeRequest(request).getHeaders();
+        Iterator<String> iter = headers.iterator();
+        while (iter.hasNext()) {
+            //不对请求包重复编码
+            if (((String)iter.next()).contains("Transfer-Encoding")) {
+                return request;
+            }
+        }
+        //Add Transfer-Encoding header
+        headers.add("Transfer-Encoding: chunked");
+
+        //encoding
         List<String> str_list = Util.getStrList1(body,minChunkedLen,maxChunkedLen);
         String encoding_body = "";
         for(String str:str_list){
@@ -30,15 +42,8 @@ public class Transfer {
         }
         encoding_body += "0\r\n\r\n";
 
-        List<String> headers = helpers.analyzeRequest(request).getHeaders();
 
-        Iterator<String> iter = headers.iterator();
-        while (iter.hasNext()) {
-            if (((String)iter.next()).contains("Transfer-Encoding")) {
-                iter.remove();
-            }
-        }
-        headers.add("Transfer-Encoding: chunked");
+
         return helpers.buildHttpMessage(headers,encoding_body.getBytes());
     }
 
@@ -48,7 +53,22 @@ public class Transfer {
         int bodyOffset = requestInfo.getBodyOffset();
         String body = new String(request, bodyOffset, request.length - bodyOffset, "UTF-8");
 
-        // decoding
+        // Delete Transfer-Encoding header
+        List<String> headers = helpers.analyzeRequest(request).getHeaders();
+        Iterator<String> iter = headers.iterator();
+        Boolean isChunked = false;//是否被分块编码过
+        while (iter.hasNext()) {
+            if (((String)iter.next()).contains("Transfer-Encoding")) {
+                iter.remove();
+                isChunked = true;
+            }
+        }
+        //不对未编码过的请求包解码
+        if(!isChunked){
+            return request;
+        }
+
+        //Decoding
         String[] array_body = body.split("\r\n");
         List<String> list_string_body = Arrays.asList(array_body);
         List list_body = new ArrayList(list_string_body);
@@ -61,15 +81,23 @@ public class Transfer {
             }
         }
 
-        // del Transfer-Encoding header
-        List<String> headers = helpers.analyzeRequest(request).getHeaders();
+        return helpers.buildHttpMessage(headers,decoding_body.getBytes());
+    }
+
+    /**
+     * 通过数据包头部是否存在Transfer-Encoding头，来判断其是否被编码
+     * @param requestResponse
+     * @return 是否被编码
+     */
+    public static boolean isChunked(IHttpRequestResponse requestResponse){
+        byte[] request = requestResponse.getRequest();
+        List<String> headers = BurpExtender.helpers.analyzeRequest(request).getHeaders();
         Iterator<String> iter = headers.iterator();
         while (iter.hasNext()) {
             if (((String)iter.next()).contains("Transfer-Encoding")) {
-                iter.remove();
+                return true;
             }
         }
-
-        return helpers.buildHttpMessage(headers,decoding_body.getBytes());
+        return false;
     }
 }

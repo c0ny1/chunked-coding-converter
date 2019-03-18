@@ -4,7 +4,7 @@ import java.io.PrintWriter;
 
 public class BurpExtender implements IBurpExtender,IHttpListener,IProxyListener {
     public static IBurpExtenderCallbacks callbacks;
-    private IExtensionHelpers helpers;
+    public static IExtensionHelpers helpers;
     private String extensionName = "Chunked coding converter";
     private String version ="0.1";
     public static PrintWriter stdout;
