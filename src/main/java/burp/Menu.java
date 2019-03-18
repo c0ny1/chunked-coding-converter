@@ -44,6 +44,13 @@ public class Menu implements IContextMenuFactory {
 
             public void actionPerformed(ActionEvent arg0) {
                 IHttpRequestResponse iReqResp = invocation.getSelectedMessages()[0];
+                IRequestInfo reqInfo = m_helpers.analyzeRequest(iReqResp.getRequest());
+                // 不对GET请求进行编码
+                if(!reqInfo.getMethod().equals("POST")){
+                    JOptionPane.showConfirmDialog(null,"GET requests cannot be chunked encoded！","Warning",JOptionPane.CLOSED_OPTION,JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+
                 try {
                     byte[] request = Transfer.encoding(m_helpers, iReqResp, Config.getMin_chunked_len(),Config.getMax_chunked_len(),Config.isAddComment(),Config.getMin_comment_len(),Config.getMax_comment_len());
                     if (request != null) {

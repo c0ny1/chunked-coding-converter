@@ -30,7 +30,7 @@ public class BurpExtender implements IBurpExtender,IHttpListener,IProxyListener 
         if(messageIsRequest && isValidTool(toolFlag) && (toolFlag != IBurpExtenderCallbacks.TOOL_PROXY)){
             IRequestInfo reqInfo = helpers.analyzeRequest(messageInfo.getRequest());
 
-            if(reqInfo.getMethod().equals("POST") && reqInfo.getContentType() == IRequestInfo.CONTENT_TYPE_URL_ENCODED){
+            if(reqInfo.getMethod().equals("POST")){
                 try {
                     byte[] request = Transfer.encoding(helpers, messageInfo, Config.getMin_chunked_len(),Config.getMax_chunked_len(),Config.isAddComment(),Config.getMin_comment_len(),Config.getMax_comment_len());
                     if (request != null) {
@@ -50,7 +50,7 @@ public class BurpExtender implements IBurpExtender,IHttpListener,IProxyListener 
             IHttpRequestResponse messageInfo = proxyMessage.getMessageInfo();
             IRequestInfo reqInfo = helpers.analyzeRequest(messageInfo.getRequest());
 
-            if(reqInfo.getMethod().equals("POST") && reqInfo.getContentType() == IRequestInfo.CONTENT_TYPE_URL_ENCODED){
+            if(reqInfo.getMethod().equals("POST")){
                 try {
                     byte[] request = Transfer.encoding(helpers, messageInfo, Config.getMin_chunked_len(),Config.getMax_chunked_len(),Config.isAddComment(),Config.getMin_comment_len(),Config.getMax_comment_len());
                     if (request != null) {
