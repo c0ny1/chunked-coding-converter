@@ -6,9 +6,10 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
-
+/**
+ * 菜单类，负责显示菜单，处理菜单事件
+ */
 public class Menu implements IContextMenuFactory {
-
     public List<JMenuItem> createMenuItems(final IContextMenuInvocation invocation) {
         List<JMenuItem> menus = new ArrayList();
         JMenu chunkedMenu = new JMenu("Chunked coding converter");

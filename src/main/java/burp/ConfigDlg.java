@@ -5,7 +5,9 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-
+/**
+ * 配置窗口类，负责显示配置窗口，处理窗口消息
+ */
 public class ConfigDlg extends JDialog {
     private final JPanel mainPanel = new JPanel();
     private final JPanel topPanel =  new JPanel();

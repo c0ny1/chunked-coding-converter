@@ -38,8 +38,14 @@ public class Util {
         return list;
     }
 
-
-    public static List<String> getStrList1(String str, int minLen, int maxLen){
+    /**
+     * 把原始字符串分割成指定范围的随着长度字符串列表
+     * @param str 要分割的字符串
+     * @param minLen 随机最小长度
+     * @param maxLen 随机最大长度
+     * @return
+     */
+    public static List<String> getStrRandomLenList(String str, int minLen, int maxLen){
         List<String> list_str = new ArrayList<String>();
         int sum = 0;
         while (sum<str.length()){

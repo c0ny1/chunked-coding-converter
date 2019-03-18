@@ -1,6 +1,8 @@
 package burp;
 
-
+/**
+ * 配置对象类，负责对配置项进行设置与获取
+ */
 public class Config {
     private static Integer min_chunked_len = 1;
     private static Integer max_chunked_len = 3;

@@ -3,7 +3,21 @@ package burp;
 import java.io.UnsupportedEncodingException;
 import java.util.*;
 
+/**
+ * 编码解码类，负责对目标请求进行编码解码
+ */
 public class Transfer {
+    /**
+     * 对请求包进行chunked编码
+     * @param requestResponse 要处理的请求响应对象
+     * @param minChunkedLen 分块最短长度
+     * @param maxChunkedLen 分块最长长度
+     * @param isComment 是否添加注释
+     * @param minCommentLen 注释最短长度
+     * @param maxCommentLen 注释最长长度
+     * @return 编码后的请求包
+     * @throws UnsupportedEncodingException
+     */
     public static  byte[] encoding(IHttpRequestResponse requestResponse,int minChunkedLen, int maxChunkedLen, boolean isComment,int minCommentLen,int maxCommentLen) throws UnsupportedEncodingException {
         byte[] request = requestResponse.getRequest();
         IRequestInfo requestInfo = BurpExtender.helpers.analyzeRequest(request);
@@ -27,7 +41,7 @@ public class Transfer {
         headers.add("Transfer-Encoding: chunked");
 
         //encoding
-        List<String> str_list = Util.getStrList1(body,minChunkedLen,maxChunkedLen);
+        List<String> str_list = Util.getStrRandomLenList(body,minChunkedLen,maxChunkedLen);
         String encoding_body = "";
         for(String str:str_list){
             if(isComment){
@@ -47,6 +61,13 @@ public class Transfer {
         return BurpExtender.helpers.buildHttpMessage(headers,encoding_body.getBytes());
     }
 
+
+    /**
+     * 对编码过的请求包进行解码
+     * @param requestResponse 已编码过的请求响应对象
+     * @return 解码后的请求包
+     * @throws UnsupportedEncodingException
+     */
     public static byte[] decoding(IHttpRequestResponse requestResponse) throws UnsupportedEncodingException {
         byte[] request = requestResponse.getRequest();
         IRequestInfo requestInfo = BurpExtender.helpers.analyzeRequest(request);
@@ -83,6 +104,7 @@ public class Transfer {
 
         return BurpExtender.helpers.buildHttpMessage(headers,decoding_body.getBytes());
     }
+
 
     /**
      * 通过数据包头部是否存在Transfer-Encoding头，来判断其是否被编码
