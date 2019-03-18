@@ -4,9 +4,9 @@ import java.io.UnsupportedEncodingException;
 import java.util.*;
 
 public class Transfer {
-    public static  byte[] encoding(IExtensionHelpers helpers, IHttpRequestResponse requestResponse,int minChunkedLen, int maxChunkedLen, boolean isComment,int minCommentLen,int maxCommentLen) throws UnsupportedEncodingException {
+    public static  byte[] encoding(IHttpRequestResponse requestResponse,int minChunkedLen, int maxChunkedLen, boolean isComment,int minCommentLen,int maxCommentLen) throws UnsupportedEncodingException {
         byte[] request = requestResponse.getRequest();
-        IRequestInfo requestInfo = helpers.analyzeRequest(request);
+        IRequestInfo requestInfo = BurpExtender.helpers.analyzeRequest(request);
         int bodyOffset = requestInfo.getBodyOffset();
         int body_length = request.length - bodyOffset;
         String body = new String(request, bodyOffset, body_length, "UTF-8");
@@ -15,7 +15,7 @@ public class Transfer {
             return request;
         }
 
-        List<String> headers = helpers.analyzeRequest(request).getHeaders();
+        List<String> headers = BurpExtender.helpers.analyzeRequest(request).getHeaders();
         Iterator<String> iter = headers.iterator();
         while (iter.hasNext()) {
             //不对请求包重复编码
@@ -44,17 +44,17 @@ public class Transfer {
 
 
 
-        return helpers.buildHttpMessage(headers,encoding_body.getBytes());
+        return BurpExtender.helpers.buildHttpMessage(headers,encoding_body.getBytes());
     }
 
-    public static byte[] decoding(IExtensionHelpers helpers, IHttpRequestResponse requestResponse) throws UnsupportedEncodingException {
+    public static byte[] decoding(IHttpRequestResponse requestResponse) throws UnsupportedEncodingException {
         byte[] request = requestResponse.getRequest();
-        IRequestInfo requestInfo = helpers.analyzeRequest(request);
+        IRequestInfo requestInfo = BurpExtender.helpers.analyzeRequest(request);
         int bodyOffset = requestInfo.getBodyOffset();
         String body = new String(request, bodyOffset, request.length - bodyOffset, "UTF-8");
 
         // Delete Transfer-Encoding header
-        List<String> headers = helpers.analyzeRequest(request).getHeaders();
+        List<String> headers = BurpExtender.helpers.analyzeRequest(request).getHeaders();
         Iterator<String> iter = headers.iterator();
         Boolean isChunked = false;//是否被分块编码过
         while (iter.hasNext()) {
@@ -81,7 +81,7 @@ public class Transfer {
             }
         }
 
-        return helpers.buildHttpMessage(headers,decoding_body.getBytes());
+        return BurpExtender.helpers.buildHttpMessage(headers,decoding_body.getBytes());
     }
 
     /**

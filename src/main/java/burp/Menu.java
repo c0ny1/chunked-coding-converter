@@ -3,25 +3,11 @@ package burp;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
 
 public class Menu implements IContextMenuFactory {
-    private IBurpExtenderCallbacks callbacks;
-    private final IExtensionHelpers m_helpers;
-    private PrintWriter stdout;
-    private PrintWriter stderr;
-
-
-    public Menu(IBurpExtenderCallbacks callbacks) {
-        this.callbacks = callbacks;
-        this.m_helpers = callbacks.getHelpers();
-        this.stdout = new PrintWriter(callbacks.getStdout(),true);
-        this.stderr = new PrintWriter(callbacks.getStderr(),true);
-    }
-
 
     public List<JMenuItem> createMenuItems(final IContextMenuInvocation invocation) {
         List<JMenuItem> menus = new ArrayList();
@@ -44,7 +30,7 @@ public class Menu implements IContextMenuFactory {
 
             public void actionPerformed(ActionEvent arg0) {
                 IHttpRequestResponse iReqResp = invocation.getSelectedMessages()[0];
-                IRequestInfo reqInfo = m_helpers.analyzeRequest(iReqResp.getRequest());
+                IRequestInfo reqInfo = BurpExtender.helpers.analyzeRequest(iReqResp.getRequest());
                 // 不对GET请求进行编码
                 if(!reqInfo.getMethod().equals("POST")){
                     JOptionPane.showConfirmDialog(null,"GET requests cannot be chunked encoded！","Warning",JOptionPane.CLOSED_OPTION,JOptionPane.WARNING_MESSAGE);
@@ -58,12 +44,12 @@ public class Menu implements IContextMenuFactory {
                 }
 
                 try {
-                    byte[] request = Transfer.encoding(m_helpers, iReqResp, Config.getMin_chunked_len(),Config.getMax_chunked_len(),Config.isAddComment(),Config.getMin_comment_len(),Config.getMax_comment_len());
+                    byte[] request = Transfer.encoding(iReqResp, Config.getMin_chunked_len(),Config.getMax_chunked_len(),Config.isAddComment(),Config.getMin_comment_len(),Config.getMax_comment_len());
                     if (request != null) {
                         iReqResp.setRequest(request);
                     }
                 } catch (Exception e) {
-                    stderr.println(e.getMessage());
+                    BurpExtender.stderr.println(e.getMessage());
                 }
             }
         });
@@ -80,12 +66,12 @@ public class Menu implements IContextMenuFactory {
                 }
 
                 try {
-                    byte[] request = Transfer.decoding(m_helpers,iReqResp);
+                    byte[] request = Transfer.decoding(iReqResp);
                     if (request != null) {
                         iReqResp.setRequest(request);
                     }
                 } catch (Exception e) {
-                    stderr.println(e.getMessage());
+                    BurpExtender.stderr.println(e.getMessage());
                 }
             }
         });
@@ -95,10 +81,10 @@ public class Menu implements IContextMenuFactory {
             public void actionPerformed(ActionEvent arg0) {
                 try {
                     ConfigDlg dlg = new ConfigDlg();
-                    callbacks.customizeUiComponent(dlg);
+                    BurpExtender.callbacks.customizeUiComponent(dlg);
                     dlg.setVisible(true);
                 }catch (Exception e){
-                    e.printStackTrace(stderr);
+                    e.printStackTrace(BurpExtender.stderr);
                 }
             }
         });

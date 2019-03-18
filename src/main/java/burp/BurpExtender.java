@@ -15,7 +15,7 @@ public class BurpExtender implements IBurpExtender,IHttpListener,IProxyListener 
         this.callbacks = callbacks;
         this.helpers = callbacks.getHelpers();
         callbacks.setExtensionName(String.format("%s %s",extensionName,version));
-        callbacks.registerContextMenuFactory(new Menu(callbacks));
+        callbacks.registerContextMenuFactory(new Menu());
         callbacks.registerHttpListener(this);
         callbacks.registerProxyListener(this);
         stdout = new PrintWriter(callbacks.getStdout(),true);
@@ -32,7 +32,7 @@ public class BurpExtender implements IBurpExtender,IHttpListener,IProxyListener 
 
             if(reqInfo.getMethod().equals("POST")){
                 try {
-                    byte[] request = Transfer.encoding(helpers, messageInfo, Config.getMin_chunked_len(),Config.getMax_chunked_len(),Config.isAddComment(),Config.getMin_comment_len(),Config.getMax_comment_len());
+                    byte[] request = Transfer.encoding(messageInfo, Config.getMin_chunked_len(),Config.getMax_chunked_len(),Config.isAddComment(),Config.getMin_comment_len(),Config.getMax_comment_len());
                     if (request != null) {
                         messageInfo.setRequest(request);
                     }
@@ -52,7 +52,7 @@ public class BurpExtender implements IBurpExtender,IHttpListener,IProxyListener 
 
             if(reqInfo.getMethod().equals("POST")){
                 try {
-                    byte[] request = Transfer.encoding(helpers, messageInfo, Config.getMin_chunked_len(),Config.getMax_chunked_len(),Config.isAddComment(),Config.getMin_comment_len(),Config.getMax_comment_len());
+                    byte[] request = Transfer.encoding(messageInfo, Config.getMin_chunked_len(),Config.getMax_chunked_len(),Config.isAddComment(),Config.getMin_comment_len(),Config.getMax_comment_len());
                     if (request != null) {
                         messageInfo.setRequest(request);
                     }
@@ -63,7 +63,11 @@ public class BurpExtender implements IBurpExtender,IHttpListener,IProxyListener 
         }
     }
 
-
+    /**
+     * 插件是否作用于该套件
+     * @param toolFlag
+     * @return
+     */
     private boolean isValidTool(int toolFlag){
         return (Config.isAct_on_all_tools() ||
                 (Config.isAct_on_proxy() && toolFlag== IBurpExtenderCallbacks.TOOL_PROXY) ||
@@ -88,6 +92,7 @@ public class BurpExtender implements IBurpExtender,IHttpListener,IProxyListener 
                         + "[+]    " + extensionName + " v" + version +"\n"
                         + "[+]    anthor: c0ny1\n"
                         + "[+]    email:  root@gv7.me\n"
+                        + "[+]    contributor: phith0n\n"
                         + "[+]    github: http://github.com/c0ny1/chunked-coding-converter\n"
                         + "[+] ##############################################";
         return bannerInfo;
