@@ -6,7 +6,7 @@ public class BurpExtender implements IBurpExtender,IHttpListener,IProxyListener 
     public static IBurpExtenderCallbacks callbacks;
     public static IExtensionHelpers helpers;
     private String extensionName = "Chunked coding converter";
-    private String version ="0.2";
+    private String version ="0.2.1";
     public static PrintWriter stdout;
     public static PrintWriter stderr;
 
@@ -26,7 +26,7 @@ public class BurpExtender implements IBurpExtender,IHttpListener,IProxyListener 
 
     @Override
     public void processHttpMessage(int toolFlag, boolean messageIsRequest, IHttpRequestResponse messageInfo) {
-        //代理不走这，否则两次修改会导致数据包存在问题
+        // 处理除代理套件之外的套件流量
         if(messageIsRequest && isValidTool(toolFlag) && (toolFlag != IBurpExtenderCallbacks.TOOL_PROXY)){
             IRequestInfo reqInfo = helpers.analyzeRequest(messageInfo.getRequest());
 
@@ -46,6 +46,7 @@ public class BurpExtender implements IBurpExtender,IHttpListener,IProxyListener 
 
     @Override
     public void processProxyMessage(final boolean messageIsRequest, final IInterceptedProxyMessage proxyMessage) {
+        // 处理代理套件流量
         if(messageIsRequest && isValidTool(IBurpExtenderCallbacks.TOOL_PROXY)){
             IHttpRequestResponse messageInfo = proxyMessage.getMessageInfo();
             IRequestInfo reqInfo = helpers.analyzeRequest(messageInfo.getRequest());
