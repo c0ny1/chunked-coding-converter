@@ -57,7 +57,6 @@ public class Transfer {
         encoding_body += "0\r\n\r\n";
 
 
-
         return BurpExtender.helpers.buildHttpMessage(headers,encoding_body.getBytes());
     }
 

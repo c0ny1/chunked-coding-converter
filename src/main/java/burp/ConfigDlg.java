@@ -86,11 +86,13 @@ public class ConfigDlg extends JDialog {
         mainPanel.add(bottomPanel,BorderLayout.SOUTH);
 
         this.setModal(true);
-        this.setSize(680,150);
-        Dimension screensize=Toolkit.getDefaultToolkit().getScreenSize();
-        this.setBounds(screensize.width/2-this.getWidth()/2,screensize.height/2-this.getHeight()/2,this.getWidth(),this.getHeight());
         this.setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         this.add(mainPanel);
+        //使配置窗口自动适应控件大小，防止部分控件无法显示
+        this.pack();
+        //居中显示配置窗口
+        Dimension screensize=Toolkit.getDefaultToolkit().getScreenSize();
+        this.setBounds(screensize.width/2-this.getWidth()/2,screensize.height/2-this.getHeight()/2,this.getWidth(),this.getHeight());
     }
 
 
