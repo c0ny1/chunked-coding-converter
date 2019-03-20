@@ -24,7 +24,7 @@ public class Config {
         try {
             return Integer.valueOf(val);
         }catch(Exception e){
-            return min_chunked_len;
+            return Config.min_chunked_len;
         }
     }
 
@@ -38,7 +38,7 @@ public class Config {
         try {
             return Integer.valueOf(val);
         }catch(Exception e){
-            return max_chunked_len;
+            return Config.max_chunked_len;
         }
     }
 
@@ -49,10 +49,11 @@ public class Config {
 
     public static boolean isAddComment() {
         String val = BurpExtender.callbacks.loadExtensionSetting("addComment");
+        if(val == null) return Config.addComment;
         try {
             return Boolean.valueOf(val);
         }catch(Exception e){
-            return addComment;
+            return Config.addComment;
         }
     }
 
@@ -66,7 +67,7 @@ public class Config {
         try {
             return Integer.valueOf(val);
         }catch(Exception e){
-            return min_comment_len;
+            return Config.min_comment_len;
         }
     }
 
@@ -80,7 +81,7 @@ public class Config {
         try {
             return Integer.valueOf(val);
         }catch(Exception e){
-            return max_comment_len;
+            return Config.max_comment_len;
         }
     }
 
@@ -91,10 +92,11 @@ public class Config {
 
     public static boolean isAct_on_all_tools() {
         String val = BurpExtender.callbacks.loadExtensionSetting("act_on_all_tools");
+        if(val == null) return Config.act_on_all_tools;
         try {
             return Boolean.valueOf(val);
         }catch(Exception e){
-            return act_on_all_tools;
+            return Config.act_on_all_tools;
         }
     }
 
@@ -105,10 +107,11 @@ public class Config {
 
     public static boolean isAct_on_target() {
         String val = BurpExtender.callbacks.loadExtensionSetting("act_on_target");
+        if(val == null) return Config.act_on_target;
         try {
             return Boolean.valueOf(val);
         }catch(Exception e){
-            return act_on_target;
+            return Config.act_on_target;
         }
     }
 
@@ -119,10 +122,11 @@ public class Config {
 
     public static boolean isAct_on_proxy() {
         String val = BurpExtender.callbacks.loadExtensionSetting("act_on_proxy");
+        if(val == null) return Config.act_on_proxy;
         try {
             return Boolean.valueOf(val);
         }catch(Exception e){
-            return act_on_proxy;
+            return Config.act_on_proxy;
         }
     }
 
@@ -133,10 +137,11 @@ public class Config {
 
     public static boolean isAct_on_spider() {
         String val = BurpExtender.callbacks.loadExtensionSetting("act_on_spider");
+        if(val == null) return Config.act_on_spider;
         try {
             return Boolean.valueOf(val);
         }catch(Exception e){
-            return act_on_spider;
+            return Config.act_on_spider;
         }
     }
 
@@ -147,10 +152,11 @@ public class Config {
 
     public static boolean isAct_on_intruder() {
         String val = BurpExtender.callbacks.loadExtensionSetting("act_on_intruder");
+        if(val == null) return Config.act_on_intruder;
         try {
             return Boolean.valueOf(val);
         }catch(Exception e){
-            return act_on_intruder;
+            return Config.act_on_intruder;
         }
     }
 
@@ -161,10 +167,11 @@ public class Config {
 
     public static boolean isAct_on_repeater() {
         String val = BurpExtender.callbacks.loadExtensionSetting("act_on_repeater");
+        if(val == null) return Config.act_on_repeater;
         try {
             return Boolean.valueOf(val);
         }catch(Exception e){
-            return act_on_repeater;
+            return Config.act_on_repeater;
         }
     }
 
@@ -175,10 +182,11 @@ public class Config {
 
     public static boolean isAct_on_scanner() {
         String val = BurpExtender.callbacks.loadExtensionSetting("act_on_scanner");
+        if(val == null) return Config.act_on_scanner;
         try {
             return Boolean.valueOf(val);
         }catch(Exception e){
-            return act_on_scanner;
+            return Config.act_on_scanner;
         }
     }
 
@@ -189,10 +197,11 @@ public class Config {
 
     public static boolean isAct_on_extender() {
         String val = BurpExtender.callbacks.loadExtensionSetting("act_on_extender");
+        if(val == null) return Config.act_on_extender;
         try {
             return Boolean.valueOf(val);
         }catch(Exception e){
-            return act_on_extender;
+            return Config.act_on_extender;
         }
     }
 
@@ -203,10 +212,11 @@ public class Config {
 
     public static boolean isAct_on_sequencer() {
         String val = BurpExtender.callbacks.loadExtensionSetting("act_on_sequencer");
+        if(val == null) return Config.act_on_sequencer;
         try {
             return Boolean.valueOf(val);
         }catch(Exception e){
-            return act_on_sequencer;
+            return Config.act_on_sequencer;
         }
     }
 
