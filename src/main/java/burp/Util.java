@@ -1,5 +1,6 @@
 package burp;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -52,6 +53,23 @@ public class Util {
             int l = getRandomNum(minLen,maxLen);
             list_str.add(substring(str,sum, sum+l));
             System.out.println(l);
+            sum += l;
+        }
+        return list_str;
+    }
+
+
+    public static List<byte[]> getByteRandomLenList(byte[] data, int minLen, int maxLen){
+        List<byte[]> list_str = new ArrayList<byte[]>();
+        int sum = 0;
+        while (sum < data.length){
+            int l = getRandomNum(minLen,maxLen);
+            if(sum + l > data.length){
+                l = data.length - sum;
+            }
+            byte[] byteBody = new byte[l];
+            System.arraycopy(data, sum, byteBody, 0, byteBody.length);
+            list_str.add(byteBody);
             sum += l;
         }
         return list_str;
@@ -112,5 +130,22 @@ public class Util {
     public static String decimalToHex(int decimal) {
         String hex = Integer.toHexString(decimal);
         return  hex.toUpperCase();
+    }
+
+    /**
+     * 将16进制转10进制
+     * @param hex
+     * @return
+     */
+    public static int hexToDecimal(String hex){
+        BigInteger bigInteger = new BigInteger(hex,16);
+        return bigInteger.intValue();
+    }
+
+
+    public static void main(String[] args) {
+        byte[] ewee = "wewewe.w".getBytes();
+        List<byte[]> xssd = getByteRandomLenList(ewee,1,4);
+        System.out.println(xssd);
     }
 }

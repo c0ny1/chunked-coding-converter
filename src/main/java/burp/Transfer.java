@@ -20,15 +20,6 @@ public class Transfer {
      */
     public static  byte[] encoding(IHttpRequestResponse requestResponse,int minChunkedLen, int maxChunkedLen, boolean isComment,int minCommentLen,int maxCommentLen) throws UnsupportedEncodingException {
         byte[] request = requestResponse.getRequest();
-        IRequestInfo requestInfo = BurpExtender.helpers.analyzeRequest(request);
-        int bodyOffset = requestInfo.getBodyOffset();
-        int body_length = request.length - bodyOffset;
-        String body = new String(request, bodyOffset, body_length, "UTF-8");
-
-        if (request.length - bodyOffset > 10000){
-            return request;
-        }
-
         List<String> headers = BurpExtender.helpers.analyzeRequest(request).getHeaders();
         Iterator<String> iter = headers.iterator();
         while (iter.hasNext()) {
@@ -40,26 +31,23 @@ public class Transfer {
         //Add Transfer-Encoding header
         headers.add("Transfer-Encoding: chunked");
 
-        //encoding
-        List<String> str_list = Util.getStrRandomLenList(body,minChunkedLen,maxChunkedLen);
-        String encoding_body = "";
-        for(String str:str_list){
-            if(isComment){
-                int commentLen = Util.getRandomNum(minCommentLen,maxCommentLen);
-                encoding_body += String.format("%s;%s",Util.decimalToHex(str.length()),Util.getRandomString(commentLen));
-            }else{
-                encoding_body += Util.decimalToHex(str.length());
-            }
-            encoding_body += "\r\n";
-            encoding_body += str;
-            encoding_body += "\r\n";
-        }
-        encoding_body += "0\r\n\r\n";
+        IRequestInfo requestInfo = BurpExtender.helpers.analyzeRequest(request);
+        int bodyOffset = requestInfo.getBodyOffset();
+        int body_length = request.length - bodyOffset;
+        byte[] byteBody = new byte[body_length];
+        System.arraycopy(request, bodyOffset, byteBody, 0, body_length);
 
-
-        return BurpExtender.helpers.buildHttpMessage(headers,encoding_body.getBytes());
+        byte[] byte_encoding_body = splitReqBody(byteBody,minChunkedLen,maxChunkedLen,isComment,minCommentLen,maxCommentLen);
+        return BurpExtender.helpers.buildHttpMessage(headers,byte_encoding_body);
     }
 
+
+    public static byte[] joinByteArray(byte[] byte1, byte[] byte2) {
+            byte[] bt3 = new byte[byte1.length+byte2.length];
+            System.arraycopy(byte1, 0, bt3, 0, byte1.length);
+            System.arraycopy(byte2, 0, bt3, byte1.length, byte2.length);
+            return bt3;
+    }
 
     /**
      * 对编码过的请求包进行解码
@@ -67,11 +55,8 @@ public class Transfer {
      * @return 解码后的请求包
      * @throws UnsupportedEncodingException
      */
-    public static byte[] decoding(IHttpRequestResponse requestResponse) throws UnsupportedEncodingException {
+    public static byte[] decoding(IHttpRequestResponse requestResponse)  {
         byte[] request = requestResponse.getRequest();
-        IRequestInfo requestInfo = BurpExtender.helpers.analyzeRequest(request);
-        int bodyOffset = requestInfo.getBodyOffset();
-        String body = new String(request, bodyOffset, request.length - bodyOffset, "UTF-8");
 
         // Delete Transfer-Encoding header
         List<String> headers = BurpExtender.helpers.analyzeRequest(request).getHeaders();
@@ -88,21 +73,86 @@ public class Transfer {
             return request;
         }
 
-        //Decoding
-        String[] array_body = body.split("\r\n");
-        List<String> list_string_body = Arrays.asList(array_body);
-        List list_body = new ArrayList(list_string_body);
-        list_body.remove(list_body.size()-1);
-        String decoding_body = "";
-        for(int i=0;i<list_body.size();i++){
-            int n = i%2;
-            if(n != 0){
-                decoding_body += list_body.get(i);
+        IRequestInfo requestInfo = BurpExtender.helpers.analyzeRequest(request);
+        int bodyOffset = requestInfo.getBodyOffset();
+        int body_length = request.length - bodyOffset;
+        byte[] byteBody = new byte[body_length];
+        System.arraycopy(request, bodyOffset, byteBody, 0, body_length);
+        byte[] mergeReqBody = mergeReqBody(byteBody);
+
+        return BurpExtender.helpers.buildHttpMessage(headers,mergeReqBody);
+    }
+
+
+    /**
+     * 将request body分块
+     * @param reqBody
+     * @param minChunkedLen
+     * @param maxChunkedLen
+     * @param isComment
+     * @param minCommentLen
+     * @param maxCommentLen
+     * @return
+     */
+    public static byte[] splitReqBody(byte[] reqBody,int minChunkedLen,int maxChunkedLen,boolean isComment,int minCommentLen,int maxCommentLen){
+        List<byte[]> bytes_list = Util.getByteRandomLenList(reqBody,minChunkedLen,maxChunkedLen);
+        byte[] byte_encoding_body = new byte[0];
+        for(byte[] b:bytes_list){
+            if(isComment){
+                int commentLen = Util.getRandomNum(minCommentLen,maxCommentLen);
+                String comment = String.format("%s;%s",Util.decimalToHex(b.length),Util.getRandomString(commentLen));
+                byte_encoding_body = joinByteArray(byte_encoding_body,comment.getBytes());
+            }else{
+                byte_encoding_body = joinByteArray(byte_encoding_body,Util.decimalToHex(b.length).getBytes());
+            }
+            byte_encoding_body = joinByteArray(byte_encoding_body,"\r\n".getBytes());
+            byte_encoding_body = joinByteArray(byte_encoding_body,b);
+            byte_encoding_body = joinByteArray(byte_encoding_body,"\r\n".getBytes());
+        }
+        byte_encoding_body = joinByteArray(byte_encoding_body,"0\n\n".getBytes());
+        return byte_encoding_body;
+    }
+
+
+    /**
+     * 将分块的req body合并
+     * @param chunkedReqBody
+     * @return
+     */
+    public static byte[] mergeReqBody(byte[] chunkedReqBody){
+        byte[] mergeBody = new byte[0];
+        int j = 0;
+
+        for(int i = 0;i < chunkedReqBody.length; i++){
+            if(i+1 <= chunkedReqBody.length
+                    && chunkedReqBody[i] == "\r".getBytes()[0]
+                    && chunkedReqBody[i+1] == "\n".getBytes()[0]){
+
+                // 获取分块长度
+                int length = i - j;
+                byte[] chunkedLen = new byte[length];
+                System.arraycopy(chunkedReqBody, j, chunkedLen, 0, length);
+                j = i + 2;
+                int cLen = Util.hexToDecimal(new String(chunkedLen));
+                // 根据分块长度获取分块内容
+                byte[] chunked = new byte[cLen];
+                System.arraycopy(chunkedReqBody, j, chunked, 0, cLen);
+                mergeBody = joinByteArray(mergeBody,chunked);
+                j = j + cLen + 2;
+                i = j;
+                continue;
+            }
+
+            // 处理结尾0\n\n
+            if(chunkedReqBody[i] == "0".getBytes()[0]
+                    && chunkedReqBody[i+1] == "\n".getBytes()[0]
+                    && chunkedReqBody[i+2] == "\n".getBytes()[0]){
+                break;
             }
         }
-
-        return BurpExtender.helpers.buildHttpMessage(headers,decoding_body.getBytes());
+        return mergeBody;
     }
+
 
 
     /**
