@@ -7,6 +7,9 @@ import java.util.*;
  * 编码解码类，负责对目标请求进行编码解码
  */
 public class Transfer {
+    public static final byte http_0 = 48;
+    public static final byte http_r = 13; // \r
+    public static final byte http_n = 10; // \n
     /**
      * 对请求包进行chunked编码
      * @param requestResponse 要处理的请求响应对象
@@ -110,7 +113,7 @@ public class Transfer {
             byte_encoding_body = joinByteArray(byte_encoding_body,b);
             byte_encoding_body = joinByteArray(byte_encoding_body,"\r\n".getBytes());
         }
-        byte_encoding_body = joinByteArray(byte_encoding_body,"0\n\n".getBytes());
+        byte_encoding_body = joinByteArray(byte_encoding_body,"0\r\n\r\n".getBytes());
         return byte_encoding_body;
     }
 
@@ -134,7 +137,14 @@ public class Transfer {
                 byte[] chunkedLen = new byte[length];
                 System.arraycopy(chunkedReqBody, j, chunkedLen, 0, length);
                 j = i + 2;
-                int cLen = Util.hexToDecimal(new String(chunkedLen));
+                int cLen;
+                String strChunkedLen = new String(chunkedLen);
+                if(strChunkedLen.contains(";")){// 如果存在注释
+                    cLen = Util.hexToDecimal(strChunkedLen.substring(0,strChunkedLen.indexOf(";")));
+                }else{
+                    cLen = Util.hexToDecimal(strChunkedLen);
+                }
+
                 // 根据分块长度获取分块内容
                 byte[] chunked = new byte[cLen];
                 System.arraycopy(chunkedReqBody, j, chunked, 0, cLen);
@@ -145,9 +155,11 @@ public class Transfer {
             }
 
             // 处理结尾0\n\n
-            if(chunkedReqBody[i] == "0".getBytes()[0]
-                    && chunkedReqBody[i+1] == "\n".getBytes()[0]
-                    && chunkedReqBody[i+2] == "\n".getBytes()[0]){
+            if(chunkedReqBody[i] == http_0
+                && chunkedReqBody[i+1] == http_r
+                && chunkedReqBody[i+2] == http_n
+                && chunkedReqBody[i+2] == http_r
+                && chunkedReqBody[i+3] == http_n){
                 break;
             }
         }
