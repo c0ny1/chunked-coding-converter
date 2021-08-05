@@ -98,7 +98,8 @@ public class Transfer {
         List<byte[]> bytes_list = Util.getByteRandomLenList(reqBody,minChunkedLen,maxChunkedLen);
         byte[] byte_encoding_body = new byte[0];
         for(byte[] b:bytes_list){
-            if(isComment){
+            // 当注释开启，同时不存在不可见字符时，才会添加注释
+            if(isComment && !Util.isIncludeInviChar(reqBody)){
                 int commentLen = Util.getRandomNum(minCommentLen,maxCommentLen);
                 String comment = String.format("%s;%s",Util.decimalToHex(b.length),Util.getRandomString(commentLen));
                 byte_encoding_body = joinByteArray(byte_encoding_body,comment.getBytes());

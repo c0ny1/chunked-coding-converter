@@ -143,6 +143,24 @@ public class Util {
     }
 
 
+    /**
+     * 判断数据中是否包含不可见字符
+     * @param data 要判断的数据
+     * @return 是否包含不可见字符
+     */
+    public static boolean isIncludeInviChar(byte[] data){
+        for(int i=0;i<data.length;i++){
+            int value = Integer.valueOf(data[i]);
+
+            if(value < 0 || value > 127){
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+
     public static void main(String[] args) {
         byte[] ewee = "wewewe.w".getBytes();
         List<byte[]> xssd = getByteRandomLenList(ewee,1,4);
