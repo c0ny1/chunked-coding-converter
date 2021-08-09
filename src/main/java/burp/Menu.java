@@ -16,9 +16,11 @@ public class Menu implements IContextMenuFactory {
         JMenuItem encodeChunked = new JMenuItem("Encoding request body");
         JMenuItem decodeChunked = new JMenuItem("Decoding request body");
         JMenuItem config = new JMenuItem("Config");
+        JMenuItem sleepClient = new JMenuItem("Sleep client");
         chunkedMenu.add(encodeChunked);
         chunkedMenu.add(decodeChunked);
         chunkedMenu.addSeparator();
+        chunkedMenu.add(sleepClient);
         chunkedMenu.add(config);
 
         //若数据包无法编辑，则将编码解码菜单项设置为禁用
@@ -86,6 +88,20 @@ public class Menu implements IContextMenuFactory {
                     dlg.setVisible(true);
                 }catch (Exception e){
                     e.printStackTrace(BurpExtender.stderr);
+                }
+            }
+        });
+
+
+        sleepClient.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    IHttpRequestResponse iReqResp = invocation.getSelectedMessages()[0];
+                    SleepSendDlg dlg = new SleepSendDlg(iReqResp);
+                    BurpExtender.callbacks.customizeUiComponent(dlg);
+                    dlg.setVisible(true);
+                }catch (Exception ex){
+                    ex.printStackTrace(BurpExtender.stderr);
                 }
             }
         });

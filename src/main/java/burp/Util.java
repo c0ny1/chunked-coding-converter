@@ -161,6 +161,15 @@ public class Util {
     }
 
 
+    public static String getUrlFormIReqRsp(IHttpRequestResponse iHttpRequestResponse){
+        IHttpService httpService = iHttpRequestResponse.getHttpService();
+        byte[] request = iHttpRequestResponse.getRequest();
+        IRequestInfo requestInfo = BurpExtender.helpers.analyzeRequest(httpService,request);
+        String url = requestInfo.getUrl().toString();
+        return url;
+    }
+
+
     public static void main(String[] args) {
         byte[] ewee = "wewewe.w".getBytes();
         List<byte[]> xssd = getByteRandomLenList(ewee,1,4);
