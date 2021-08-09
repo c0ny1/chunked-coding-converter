@@ -1,4 +1,4 @@
-package burp;
+package burp.utils;
 
 import java.awt.*;
 

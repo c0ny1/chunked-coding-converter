@@ -1,4 +1,4 @@
-import burp.Util;
+import burp.utils.Util;
 
 public class StringTest {
     public static void main(String[] args) {

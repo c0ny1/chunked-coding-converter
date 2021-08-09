@@ -1,7 +1,7 @@
 package burp;
 
 
-import burp.sleepclient.ChunkeInfoEntity;
+import burp.sleepclient.ChunkedInfoEntity;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.Vector;
@@ -36,7 +36,7 @@ public class SleepSendTableModel extends AbstractTableModel {
 
 	@Override
 	public Object getValueAt(int row, int column) {
-		ChunkeInfoEntity alertEntity = SleepSendDlg.chunkedInfos.get(row);
+		ChunkedInfoEntity alertEntity = SleepSendDlg.chunkedInfos.get(row);
 		switch (column) {
 			case 0:
 				return alertEntity.getId();

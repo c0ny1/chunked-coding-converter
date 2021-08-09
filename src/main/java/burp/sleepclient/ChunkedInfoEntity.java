@@ -1,6 +1,6 @@
 package burp.sleepclient;
 
-public class ChunkeInfoEntity {
+public class ChunkedInfoEntity {
     private int id;
     private byte[] chunkedContent;
     private int chunkedLen;

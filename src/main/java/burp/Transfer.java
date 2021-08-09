@@ -1,5 +1,7 @@
 package burp;
 
+import burp.utils.Util;
+
 import java.io.UnsupportedEncodingException;
 import java.util.*;
 

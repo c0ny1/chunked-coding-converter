@@ -3,7 +3,7 @@ package burp.sleepclient;
 import burp.BurpExtender;
 import burp.SleepSendDlg;
 import burp.Transfer;
-import burp.Util;
+import burp.utils.Util;
 
 import javax.net.ssl.*;
 import java.io.*;
@@ -14,8 +14,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import static burp.BurpExtender.helpers;
 
 // https://www.iteye.com/problems/42407
 public class SocketSleepClient {
@@ -129,7 +127,7 @@ public class SocketSleepClient {
         int id = 0;
         boolean isError = false;
         while (byteArrayInputStream.read(buffer) != -1){
-            final ChunkeInfoEntity chunkeInfoEntity = new ChunkeInfoEntity();
+            final ChunkedInfoEntity chunkeInfoEntity = new ChunkedInfoEntity();
             chunkeInfoEntity.setId(id);
             try {
                 // 发送分块长度

@@ -1,4 +1,9 @@
-package burp;
+package burp.utils;
+
+import burp.BurpExtender;
+import burp.IHttpRequestResponse;
+import burp.IHttpService;
+import burp.IRequestInfo;
 
 import java.math.BigInteger;
 import java.util.ArrayList;

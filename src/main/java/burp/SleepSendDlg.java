@@ -1,21 +1,20 @@
 package burp;
 
-import burp.sleepclient.ChunkeInfoEntity;
+import burp.sleepclient.ChunkedInfoEntity;
 import burp.sleepclient.SleepSendWorker;
-import burp.sleepclient.SocketSleepClient;
+import burp.utils.GBC;
+import burp.utils.Util;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
 public class SleepSendDlg extends JDialog implements IMessageEditorController {
-    public static final List<ChunkeInfoEntity> chunkedInfos = new ArrayList<ChunkeInfoEntity>();
+    public static final List<ChunkedInfoEntity> chunkedInfos = new ArrayList<ChunkedInfoEntity>();
     private final IHttpRequestResponse iReqResp;
     private JPanel contentPane;
     private JLabel lbHost;
@@ -53,7 +52,7 @@ public class SleepSendDlg extends JDialog implements IMessageEditorController {
     public SleepSendDlg(final IHttpRequestResponse iReqResp) {
         this.iReqResp = iReqResp;
         this.setLayout(new GridBagLayout());
-        String title = String.format("sleep send client (%s)",Util.getUrlFormIReqRsp(this.iReqResp));
+        String title = String.format("sleep send client (%s)", Util.getUrlFormIReqRsp(this.iReqResp));
         this.setTitle(title);
         contentPane = new JPanel();
         GBC gbclist = new GBC(0, 0).setFill(GBC.BOTH).setWeight(100, 100);
