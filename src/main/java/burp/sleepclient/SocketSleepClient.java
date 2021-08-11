@@ -17,6 +17,7 @@ import java.util.concurrent.Executors;
 
 // https://www.iteye.com/problems/42407
 public class SocketSleepClient {
+    private SleepSendConfig sleepSendConfig;
     private ExecutorService executorService  = Executors.newSingleThreadExecutor();
     private String url;
     private String host;
@@ -24,29 +25,8 @@ public class SocketSleepClient {
     private boolean isSSL;
     private LinkedHashMap<String,String> headers = new LinkedHashMap<String, String>();
     private byte[] reqBody;
-    private Proxy proxy = null;
 
-    public void setMinChunkedLen(int minChunkedLen) {
-        this.minChunkedLen = minChunkedLen;
-    }
-
-    public void setMaxChunkedLen(int maxChunkedLen) {
-        this.maxChunkedLen = maxChunkedLen;
-    }
-
-
-    public void setSocksProxy(String proxyHost,int proxyPort){
-        SocketAddress addr = new InetSocketAddress(proxyHost, proxyPort);
-        proxy = new Proxy(Proxy.Type.SOCKS, addr);
-    }
-
-    private  int minChunkedLen = 3;
-    private int maxChunkedLen = 10;
-    private int minSleepTime = 1000;
-    private int maxSleepTime = 3000;
-
-
-    public SocketSleepClient(String url, LinkedHashMap<String,String> headers, byte[] reqBody) throws MalformedURLException {
+    public SocketSleepClient(String url, LinkedHashMap<String,String> headers, byte[] reqBody,SleepSendConfig config) throws MalformedURLException {
         this.url = url;
         if(url.endsWith("https://")){
             isSSL = true;
@@ -70,20 +50,19 @@ public class SocketSleepClient {
         this.headers.remove("Connection");
         this.headers.put("Connection","keep-alive");
         this.reqBody = reqBody;
-    }
 
-    public void setMinSleepTime(int minSleepTime) {
-        this.minSleepTime = minSleepTime;
-    }
+        this.sleepSendConfig = config;
+        if(sleepSendConfig.isEnableSocks5Proxy()) {
 
-    public void setMaxSleepTime(int maxSleepTime) {
-        this.maxSleepTime = maxSleepTime;
+        }
     }
 
 
     public byte[] send() throws Exception{
         Socket socket = null;
-        if(proxy != null){
+        if(sleepSendConfig.isEnableSocks5Proxy()){
+            SocketAddress addr = new InetSocketAddress(sleepSendConfig.getProxyHost(), sleepSendConfig.getProxyPort());
+            Proxy proxy = new Proxy(Proxy.Type.SOCKS, addr);
             socket = new Socket(proxy);
         }else{
             socket = new Socket();
@@ -105,7 +84,6 @@ public class SocketSleepClient {
 
 
         //sslSocket.connect(new InetSocketAddress("www.baidu.com",443));
-
         OutputStream osw = socket.getOutputStream();
         osw.write(String.format("%s\r\n",headers.get("top")).getBytes());
         for(Map.Entry<String,String> header:headers.entrySet()){
@@ -123,7 +101,7 @@ public class SocketSleepClient {
 //        osw.flush();
 
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(reqBody);
-        byte[] buffer = new byte[getRandom(minChunkedLen,maxChunkedLen)];
+        byte[] buffer = new byte[getRandom(sleepSendConfig.getMinChunkedLen(),sleepSendConfig.getMaxChunkedLen())];
         int id = 0;
         boolean isError = false;
         while (byteArrayInputStream.read(buffer) != -1){
@@ -137,7 +115,7 @@ public class SocketSleepClient {
                 osw.flush();
 
                 // 发送分块内容
-                int sleeptime = getRandom(minSleepTime, maxSleepTime);
+                int sleeptime = getRandom(sleepSendConfig.getMinSleepTime(), sleepSendConfig.getMaxSleepTime());
                 chunkeInfoEntity.setSleepTime(sleeptime);
                 byte[] chunked = Transfer.joinByteArray(buffer, "\r\n".getBytes());
                 BurpExtender.stdout.println(new String(chunked));
@@ -163,7 +141,7 @@ public class SocketSleepClient {
                 }
             });
 
-            buffer = new byte[getRandom(minChunkedLen,maxChunkedLen)];
+            buffer = new byte[getRandom(sleepSendConfig.getMinChunkedLen(),sleepSendConfig.getMaxChunkedLen())];
             id ++;
 
             if(isError){

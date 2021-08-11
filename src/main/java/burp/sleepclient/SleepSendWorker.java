@@ -11,18 +11,11 @@ import static burp.SleepSendDlg.*;
 
 public class SleepSendWorker extends SwingWorker {
     private IHttpRequestResponse iReqResp;
-    private int minChunkedLen;
-    private int maxChunkedLen;
-    private int minSleepTime;
-    private int maxSleepTime;
+    private SleepSendConfig sleepSendConfig;
 
-
-    public SleepSendWorker(IHttpRequestResponse iReqResp,int minChunkedLen,int maxChunkedLen,int minSleepTime,int maxSleepTime){
+    public SleepSendWorker(IHttpRequestResponse iReqResp,SleepSendConfig config){
         this.iReqResp = iReqResp;
-        this.minChunkedLen = minChunkedLen;
-        this.maxChunkedLen = maxChunkedLen;
-        this.minSleepTime = minSleepTime;
-        this.maxSleepTime = maxSleepTime;
+        this.sleepSendConfig = config;
         SleepSendDlg.chunkedInfos.clear();
         logTable.getHttpLogTableModel().fireTableDataChanged();//通知模型更新
         logTable.updateUI();//刷新表格
@@ -55,12 +48,7 @@ public class SleepSendWorker extends SwingWorker {
         byte[] byteBody = new byte[body_length];
         System.arraycopy(request, bodyOffset, byteBody, 0, body_length);
 
-        SocketSleepClient socketSleepClient = new SocketSleepClient(url,mapHeaders,byteBody);
-        socketSleepClient.setMinChunkedLen(minChunkedLen);
-        socketSleepClient.setMaxChunkedLen(maxChunkedLen);
-        socketSleepClient.setMinSleepTime(minSleepTime);
-        socketSleepClient.setMaxSleepTime(maxSleepTime);
-
+        SocketSleepClient socketSleepClient = new SocketSleepClient(url,mapHeaders,byteBody,sleepSendConfig);
         byte[] result = socketSleepClient.send();
         responseViewer.setMessage(result, true);
 

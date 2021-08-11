@@ -1,6 +1,7 @@
 package burp;
 
 import burp.sleepclient.ChunkedInfoEntity;
+import burp.sleepclient.SleepSendConfig;
 import burp.sleepclient.SleepSendWorker;
 import burp.utils.GBC;
 import burp.utils.Util;
@@ -18,22 +19,16 @@ public class SleepSendDlg extends JDialog implements IMessageEditorController {
     private final IHttpRequestResponse iReqResp;
     private JPanel contentPane;
     private JLabel lbHost;
-    private JTextField tfHost;
     private final JSpinner spMinChunkedLen = new JSpinner(new SpinnerNumberModel(5, 1, 50, 1));
     private final JLabel lbCommentLenRangeSymbols = new JLabel("-");
     private final JSpinner spMaxChunkedLen = new JSpinner(new SpinnerNumberModel(25, 1, 50, 1));
-    private JLabel lbPort;
-    private JTextField tfPort;
-    private JLabel lbTimeout;
-    private JTextField tfTimeout;
-    private JLabel lbIntervalTime;
-    private JTextField tfIntervalTime;
     private JLabel lbUsername;
     private final JSpinner spMinSleepTime = new JSpinner(new SpinnerNumberModel(0, 0, 10000, 1));
     private final JLabel lbSleepTimeRangeSymbols = new JLabel("-");
     private final JSpinner spMaxSleepTime = new JSpinner(new SpinnerNumberModel(1000, 0, 30000, 1));
-    private JTextField tfDomain;
-    private JTextField tfExcludeSuffix;
+    private JCheckBox dbSocks5Proxy;
+    private JTextField tfProxyHost;
+    private JTextField tfProxyPort;
 
     private JButton btnSend;
     private JButton btnClear;
@@ -160,11 +155,8 @@ public class SleepSendDlg extends JDialog implements IMessageEditorController {
         btnSend.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 try {
-                    int minChunkedLen = (Integer)spMinChunkedLen.getValue();
-                    int maxChunkedLen = (Integer)spMaxChunkedLen.getValue();
-                    int minSleepTime = (Integer)spMinSleepTime.getValue();
-                    int maxSleepTime = (Integer)spMaxSleepTime.getValue();
-                    SleepSendWorker worker = new SleepSendWorker(iReqResp,minChunkedLen,maxChunkedLen,minSleepTime,maxSleepTime);
+                    SleepSendConfig config = getSleepSendConfig();
+                    SleepSendWorker worker = new SleepSendWorker(iReqResp,config);
                     worker.execute();
                 }catch (Throwable throwable){
                     throwable.printStackTrace(BurpExtender.stderr);
@@ -216,14 +208,14 @@ public class SleepSendDlg extends JDialog implements IMessageEditorController {
 
 
         int second_row_gridx = 0;
-        JCheckBox checkBox = new JCheckBox("socks5 proxy host:");
+        dbSocks5Proxy = new JCheckBox("socks5 proxy host:");
         GridBagConstraints gbc_enable_socks5 = new GridBagConstraints();
         gbc_enable_socks5.insets = new Insets(0, 0, 0, 5);
         //gbc_enable_socks5.anchor = 13;
         gbc_enable_socks5.fill = 2;
         gbc_enable_socks5.gridx = second_row_gridx;
         gbc_enable_socks5.gridy = 0;
-        FilterPanel.add(checkBox, gbc_enable_socks5);
+        FilterPanel.add(dbSocks5Proxy, gbc_enable_socks5);
         second_row_gridx++;
 
 
@@ -238,15 +230,15 @@ public class SleepSendDlg extends JDialog implements IMessageEditorController {
 //        second_row_gridx++;
 
 
-        tfDomain = new JTextField(20);
-        tfDomain.setText("127.0.0.1");
-        tfDomain.setEnabled(false);
+        tfProxyHost = new JTextField(20);
+        tfProxyHost.setText("127.0.0.1");
+        tfProxyHost.setEnabled(false);
         GridBagConstraints gbc_tfDomain = new GridBagConstraints();
         gbc_tfDomain.insets = new Insets(0, 0, 0, 5);
         gbc_tfDomain.fill = 2;
         gbc_tfDomain.gridx = second_row_gridx;
         gbc_tfDomain.gridy = 0;
-        FilterPanel.add(tfDomain, gbc_tfDomain);
+        FilterPanel.add(tfProxyHost, gbc_tfDomain);
         second_row_gridx++;
 
 
@@ -259,15 +251,15 @@ public class SleepSendDlg extends JDialog implements IMessageEditorController {
         FilterPanel.add(lbExcludeSuffix, gbc_lbExcludeSuffix);
         second_row_gridx++;
 
-        tfExcludeSuffix = new JTextField(10);
-        tfExcludeSuffix.setText("1080");
-        tfExcludeSuffix.setEnabled(false);
+        tfProxyPort = new JTextField(10);
+        tfProxyPort.setText("1080");
+        tfProxyPort.setEnabled(false);
         GridBagConstraints gbc_tfExcludeSuffix = new GridBagConstraints();
         gbc_tfExcludeSuffix.insets = new Insets(0, 0, 0, 5);
         gbc_tfExcludeSuffix.fill = 2;
         gbc_tfExcludeSuffix.gridx = second_row_gridx;
         gbc_tfExcludeSuffix.gridy = 0;
-        FilterPanel.add(tfExcludeSuffix, gbc_tfExcludeSuffix);
+        FilterPanel.add(tfProxyPort, gbc_tfExcludeSuffix);
         second_row_gridx++;
 
 
@@ -415,13 +407,14 @@ public class SleepSendDlg extends JDialog implements IMessageEditorController {
         this.setBounds(screensize.width/2-this.getWidth()/2,screensize.height/2-this.getHeight()/2,this.getWidth(),this.getHeight());
 
 
-        byte[] request = iReqResp.getRequest();
-        requestViewer.setMessage(request,true);
+
 
 
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
+                byte[] request = iReqResp.getRequest();
+                requestViewer.setMessage(request,true);
                 splitPane.setDividerLocation(0.5);
             }
         });
@@ -439,12 +432,38 @@ public class SleepSendDlg extends JDialog implements IMessageEditorController {
         return currentlyDisplayedItem.getResponse();
     }
 
-    public void setAllEnabled(boolean is){
-        tfHost.setEnabled(is);
-        tfPort.setEnabled(is);
-        tfTimeout.setEnabled(is);
-        tfDomain.setEnabled(is);
-        tfExcludeSuffix.setEnabled(is);
-        tfIntervalTime.setEnabled(is);
+
+    private SleepSendConfig getSleepSendConfig(){
+        SleepSendConfig config = new SleepSendConfig();
+
+        int minChunkedLen = (Integer)spMinChunkedLen.getValue();
+        int maxChunkedLen = (Integer)spMaxChunkedLen.getValue();
+        int minSleepTime = (Integer)spMinSleepTime.getValue();
+        int maxSleepTime = (Integer)spMaxSleepTime.getValue();
+
+        config.setMinChunkedLen(minChunkedLen);
+        config.setMaxChunkedLen(maxChunkedLen);
+        config.setMinSleepTime(minSleepTime);
+        config.setMaxSleepTime(maxSleepTime);
+
+
+        config.setEnableSocks5Proxy(dbSocks5Proxy.isSelected());
+        config.setProxyHost(tfProxyHost.getText());
+
+        int proxyPort = 0;
+
+        try {
+            proxyPort = Integer.valueOf(tfProxyPort.getText());
+            if(proxyPort<0 || proxyPort > 65535){
+                JOptionPane.showMessageDialog(this,"chunked coding converter","port must be 0~65536",JOptionPane.ERROR);
+                return null;
+            }
+        }catch (Exception e){
+            JOptionPane.showMessageDialog(this,"chunked coding converter",e.getMessage(),JOptionPane.ERROR);
+            return null;
+        }
+
+        config.setProxyPort(proxyPort);
+        return config;
     }
 }
