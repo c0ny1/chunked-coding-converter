@@ -174,6 +174,14 @@ public class Util {
         return url;
     }
 
+    public static int getReqBodyLenFormIReqRsp(IHttpRequestResponse iHttpRequestResponse){
+        byte[] request = iHttpRequestResponse.getRequest();
+        IRequestInfo requestInfo = BurpExtender.helpers.analyzeRequest(request);
+        int bodyOffset = requestInfo.getBodyOffset();
+        int body_length = request.length - bodyOffset;
+        return body_length;
+    }
+
 
     public static void main(String[] args) {
         byte[] ewee = "wewewe.w".getBytes();
