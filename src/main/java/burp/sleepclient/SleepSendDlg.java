@@ -10,6 +10,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 public class SleepSendDlg extends JDialog implements IMessageEditorController {
     private final IHttpRequestResponse iReqResp;
@@ -43,8 +45,8 @@ public class SleepSendDlg extends JDialog implements IMessageEditorController {
     private int minChunked;
     private int maxChunked;
 
-    public int minTotalTime;
-    private int maxTotalTime;
+    public double minTotalTime;
+    private double maxTotalTime;
 
 
     public SleepSendDlg(final IHttpRequestResponse iReqResp) {
@@ -234,7 +236,7 @@ public class SleepSendDlg extends JDialog implements IMessageEditorController {
 //        second_row_gridx++;
 
 
-        tfProxyHost = new JTextField(20);
+        tfProxyHost = new JTextField(10);
         tfProxyHost.setText("127.0.0.1");
         tfProxyHost.setEnabled(false);
         GridBagConstraints gbc_tfDomain = new GridBagConstraints();
@@ -255,7 +257,7 @@ public class SleepSendDlg extends JDialog implements IMessageEditorController {
         FilterPanel.add(lbExcludeSuffix, gbc_lbExcludeSuffix);
         second_row_gridx++;
 
-        tfProxyPort = new JTextField(10);
+        tfProxyPort = new JTextField(5);
         tfProxyPort.setText("1080");
         tfProxyPort.setEnabled(false);
         GridBagConstraints gbc_tfExcludeSuffix = new GridBagConstraints();
@@ -362,8 +364,6 @@ public class SleepSendDlg extends JDialog implements IMessageEditorController {
         FilterPanel.add(lbTotalTime, gbc_lbFailCount);
         second_row_gridx++;
 
-
-
         lbMinMaxTotalTime = new JLabel();
         lbMinMaxTotalTime.setForeground(new Color(255, 0, 0));
         GridBagConstraints gbc_minmax_totaltime = new GridBagConstraints();
@@ -405,10 +405,7 @@ public class SleepSendDlg extends JDialog implements IMessageEditorController {
         Dimension screensize=Toolkit.getDefaultToolkit().getScreenSize();
         this.setBounds(screensize.width/2-this.getWidth()/2,screensize.height/2-this.getHeight()/2,this.getWidth(),this.getHeight());
 
-
-
-
-
+        initAction();
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -431,6 +428,40 @@ public class SleepSendDlg extends JDialog implements IMessageEditorController {
 
     public byte[] getResponse() {
         return currentlyDisplayedItem.getResponse();
+    }
+
+
+
+    public class ChangeListenerImpl implements ChangeListener{
+        @Override
+        public void stateChanged(ChangeEvent e) {
+            int minChunkedLen = (Integer)spMinChunkedLen.getValue();
+            int maxChunkedLen = (Integer)spMaxChunkedLen.getValue();
+
+            if(minChunkedLen > maxChunkedLen){
+                spMinChunkedLen.setValue(maxChunkedLen);
+            }
+
+
+            int minSleepTime = (Integer)spMinSleepTime.getValue();
+            int maxSleepTime = (Integer)spMaxSleepTime.getValue();
+            if(minSleepTime > maxSleepTime){
+                spMinSleepTime.setValue(maxSleepTime);
+            }
+
+
+            calcTotalChunked();
+            calcTotalTime();
+        }
+    }
+
+
+    private void initAction(){
+        ChangeListenerImpl changeListener = new ChangeListenerImpl();
+        spMinChunkedLen.addChangeListener(changeListener);
+        spMaxChunkedLen.addChangeListener(changeListener);
+        spMinSleepTime.addChangeListener(changeListener);
+        spMaxSleepTime.addChangeListener(changeListener);
     }
 
 
@@ -471,13 +502,16 @@ public class SleepSendDlg extends JDialog implements IMessageEditorController {
         return config;
     }
 
+
+
+
     private void calcTotalChunked(){
-        int reqBodyLen = Util.getReqBodyLenFormIReqRsp(iReqResp);
-        minChunked = reqBodyLen / ((Integer) spMaxChunkedLen.getValue());
+        double reqBodyLen = Util.getReqBodyLenFormIReqRsp(iReqResp) * 1.0;
+        minChunked = getInt(reqBodyLen/ ((Integer) spMaxChunkedLen.getValue()));
         if(minChunked == 0){
             minChunked = 1;
         }
-        maxChunked = reqBodyLen / ((Integer) spMinChunkedLen.getValue());
+        maxChunked = getInt(reqBodyLen / ((Integer) spMinChunkedLen.getValue()));
         String chunkedLenMinMax = String.format("(%d ~ %d)",minChunked,maxChunked);
         lbChunkedLenMinMax.setText(chunkedLenMinMax);
     }
@@ -487,13 +521,31 @@ public class SleepSendDlg extends JDialog implements IMessageEditorController {
         if(minSleepTime == 0){
             minSleepTime = 1;
         }
-        minTotalTime = minChunked * minSleepTime;
-        maxTotalTime = maxChunked * (Integer)spMaxSleepTime.getValue();
+        minTotalTime = (minChunked + 1) * minSleepTime;
+        maxTotalTime = (maxChunked + 1) * (Integer)spMaxSleepTime.getValue();
         String minMaxTotalTime = String.format("(%s ~ %s)", DateUtil.ms2str(minTotalTime),DateUtil.ms2str(maxTotalTime));
         lbMinMaxTotalTime.setText(minMaxTotalTime);
     }
 
     public JLabel getLbTotalChunked(){
         return lbTotalChunked;
+    }
+
+
+    public static int getInt(double number){
+        int newNumber = (int)number;
+        if(number > newNumber){
+            return newNumber + 1;
+        }else{
+            return newNumber;
+        }
+    }
+
+    public static void main(String[] args) {
+        double i = 1.0/2;
+
+        System.out.println(i);
+        System.out.println(getInt(i));
+        System.out.println(String.format("%f", i));
     }
 }
