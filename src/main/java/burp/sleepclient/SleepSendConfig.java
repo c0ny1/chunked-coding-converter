@@ -1,5 +1,11 @@
 package burp.sleepclient;
 
+import burp.ChunkedLogTable;
+import burp.IMessageEditor;
+
+import javax.swing.*;
+import java.util.List;
+
 public class SleepSendConfig {
     private int minChunkedLen;
     private int maxChunkedLen;
@@ -8,6 +14,10 @@ public class SleepSendConfig {
     private boolean enableSocks5Proxy;
     private String proxyHost;
     private int proxyPort;
+    private JLabel lbTotalChunked;
+    private JLabel lbTotalTime;
+    private ChunkedLogTable chunkedLogTable;
+    private IMessageEditor responseViewer;
 
     public int getMinChunkedLen() {
         return minChunkedLen;
@@ -63,5 +73,37 @@ public class SleepSendConfig {
 
     public void setProxyPort(int proxyPort) {
         this.proxyPort = proxyPort;
+    }
+
+    public JLabel getLbTotalChunked() {
+        return lbTotalChunked;
+    }
+
+    public void setLbTotalChunked(JLabel lbTotalChunked) {
+        this.lbTotalChunked = lbTotalChunked;
+    }
+
+    public JLabel getLbTotalTime() {
+        return lbTotalTime;
+    }
+
+    public void setLbTotalTime(JLabel lbTotalTime) {
+        this.lbTotalTime = lbTotalTime;
+    }
+
+    public ChunkedLogTable getChunkedLogTable() {
+        return chunkedLogTable;
+    }
+
+    public void setChunkedLogTable(ChunkedLogTable chunkedLogTable) {
+        this.chunkedLogTable = chunkedLogTable;
+    }
+
+    public IMessageEditor getResponseViewer() {
+        return responseViewer;
+    }
+
+    public void setResponseViewer(IMessageEditor responseViewer) {
+        this.responseViewer = responseViewer;
     }
 }

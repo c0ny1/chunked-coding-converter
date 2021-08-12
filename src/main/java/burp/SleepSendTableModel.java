@@ -2,19 +2,21 @@ package burp;
 
 
 import burp.sleepclient.ChunkedInfoEntity;
-
 import javax.swing.table.AbstractTableModel;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 
 public class SleepSendTableModel extends AbstractTableModel {
-	public Vector<String> title = new Vector<String>();
+	private Vector<String> title = new Vector<String>();
+	private List<ChunkedInfoEntity> chunkedInfos = new ArrayList<ChunkedInfoEntity>();
 
 	public SleepSendTableModel() {
 		title.clear();
 		title.add("id");
 		title.add("chunked content");
 		title.add("chunked length");
-		title.add("sleep time");
+		title.add("sleep time(ms)");
 		title.add("status");
 	}
 
@@ -31,12 +33,12 @@ public class SleepSendTableModel extends AbstractTableModel {
 
 	@Override
 	public int getRowCount() {
-		return SleepSendDlg.chunkedInfos.size();
+		return chunkedInfos.size();
 	}
 
 	@Override
 	public Object getValueAt(int row, int column) {
-		ChunkedInfoEntity alertEntity = SleepSendDlg.chunkedInfos.get(row);
+		ChunkedInfoEntity alertEntity = chunkedInfos.get(row);
 		switch (column) {
 			case 0:
 				return alertEntity.getId();
@@ -53,6 +55,10 @@ public class SleepSendTableModel extends AbstractTableModel {
 		}
 	}
 
+	public List<ChunkedInfoEntity> getChunkedInfos() {
+		return chunkedInfos;
+	}
+
 
 // 这个引起了界面混乱。
 //	/**
@@ -66,5 +72,8 @@ public class SleepSendTableModel extends AbstractTableModel {
 //	public Class<?> getColumnClass(int columnIndex) {
 //		return getValueAt(0,columnIndex).getClass();
 //	}
+
+
+
 
 }

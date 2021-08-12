@@ -4,15 +4,14 @@ import javax.swing.*;
 import javax.swing.table.TableModel;
 
 public class ChunkedLogTable extends JTable {
-    private SleepSendTableModel httpLogTableModel;
+    private SleepSendTableModel model;
 
-    public SleepSendTableModel getHttpLogTableModel() {
-        return httpLogTableModel;
+    public SleepSendTableModel getModel() {
+        return model;
     }
-
 
     public ChunkedLogTable(TableModel tableModel) {
         super(tableModel);
-        this.httpLogTableModel = (SleepSendTableModel) tableModel;
+        this.model = (SleepSendTableModel) tableModel;
     }
 }

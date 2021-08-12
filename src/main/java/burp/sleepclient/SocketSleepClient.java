@@ -1,8 +1,8 @@
 package burp.sleepclient;
 
 import burp.BurpExtender;
-import burp.SleepSendDlg;
 import burp.Transfer;
+import burp.utils.DateUtil;
 import burp.utils.Util;
 
 import javax.net.ssl.*;
@@ -11,6 +11,7 @@ import java.net.*;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -59,6 +60,7 @@ public class SocketSleepClient {
 
 
     public byte[] send() throws Exception{
+
         Socket socket = null;
         if(sleepSendConfig.isEnableSocks5Proxy()){
             SocketAddress addr = new InetSocketAddress(sleepSendConfig.getProxyHost(), sleepSendConfig.getProxyPort());
@@ -102,8 +104,9 @@ public class SocketSleepClient {
 
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(reqBody);
         byte[] buffer = new byte[getRandom(sleepSendConfig.getMinChunkedLen(),sleepSendConfig.getMaxChunkedLen())];
-        int id = 0;
+        int id = 1;
         boolean isError = false;
+        final String startTime = DateUtil.getNowTime();
         while (byteArrayInputStream.read(buffer) != -1){
             final ChunkedInfoEntity chunkeInfoEntity = new ChunkedInfoEntity();
             chunkeInfoEntity.setId(id);
@@ -133,15 +136,19 @@ public class SocketSleepClient {
             executorService.submit(new Runnable() {
                 @Override
                 public void run() {
-                    synchronized (SleepSendDlg.chunkedInfos) {
-                        int row = SleepSendDlg.chunkedInfos.size();
-                        SleepSendDlg.chunkedInfos.add(chunkeInfoEntity);
-                        SleepSendDlg.logTable.getHttpLogTableModel().fireTableRowsInserted(row, row);
+                    List<ChunkedInfoEntity> chunkedInfos = sleepSendConfig.getChunkedLogTable().getModel().getChunkedInfos();
+                    synchronized (chunkedInfos) {
+                        double time = DateUtil.betweenMs(startTime, DateUtil.getNowTime());
+                        sleepSendConfig.getLbTotalTime().setText(DateUtil.ms2str(time));
+                        int row = chunkedInfos.size();
+                        chunkedInfos.add(chunkeInfoEntity);
+                        sleepSendConfig.getChunkedLogTable().getModel().fireTableRowsInserted(row, row);
                     }
                 }
             });
 
             buffer = new byte[getRandom(sleepSendConfig.getMinChunkedLen(),sleepSendConfig.getMaxChunkedLen())];
+            sleepSendConfig.getLbTotalChunked().setText(String.valueOf(id));
             id ++;
 
             if(isError){

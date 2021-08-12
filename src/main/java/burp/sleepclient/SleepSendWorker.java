@@ -7,8 +7,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import static burp.SleepSendDlg.*;
-
 public class SleepSendWorker extends SwingWorker {
     private IHttpRequestResponse iReqResp;
     private SleepSendConfig sleepSendConfig;
@@ -16,14 +14,13 @@ public class SleepSendWorker extends SwingWorker {
     public SleepSendWorker(IHttpRequestResponse iReqResp,SleepSendConfig config){
         this.iReqResp = iReqResp;
         this.sleepSendConfig = config;
-        SleepSendDlg.chunkedInfos.clear();
-        logTable.getHttpLogTableModel().fireTableDataChanged();//通知模型更新
-        logTable.updateUI();//刷新表格
+        this.sleepSendConfig.getChunkedLogTable().getModel().getChunkedInfos().clear();
+        sleepSendConfig.getChunkedLogTable().getModel().fireTableDataChanged();//通知模型更新
+        sleepSendConfig.getChunkedLogTable().updateUI();//刷新表格
     }
 
     protected Object doInBackground() throws Exception {
         byte[] request = iReqResp.getRequest();
-        requestViewer.setMessage(request, true);
         List<String> headers = BurpExtender.helpers.analyzeRequest(request).getHeaders();
         Iterator<String> iter = headers.iterator();
         LinkedHashMap<String, String> mapHeaders = new LinkedHashMap<String, String>();
@@ -50,10 +47,11 @@ public class SleepSendWorker extends SwingWorker {
 
         SocketSleepClient socketSleepClient = new SocketSleepClient(url,mapHeaders,byteBody,sleepSendConfig);
         byte[] result = socketSleepClient.send();
-        responseViewer.setMessage(result, true);
+        sleepSendConfig.getResponseViewer().setMessage(result, true);
 
 //        logTable.getHttpLogTableModel().fireTableDataChanged();//通知模型更新
 //        logTable.updateUI();//刷新表格
+
         return null;
     }
 }

@@ -1,5 +1,7 @@
 package burp;
 
+import burp.sleepclient.SleepSendDlg;
+
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
