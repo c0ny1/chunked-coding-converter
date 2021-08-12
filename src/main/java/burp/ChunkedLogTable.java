@@ -1,17 +1,17 @@
 package burp;
 
 import javax.swing.*;
-import javax.swing.table.TableModel;
 
 public class ChunkedLogTable extends JTable {
     private SleepSendTableModel model;
 
-    public SleepSendTableModel getModel() {
+    // 不能命名为getModel,否则表格无法显示
+    public SleepSendTableModel getChunkedLogModel() {
         return model;
     }
 
-    public ChunkedLogTable(TableModel tableModel) {
+    public ChunkedLogTable(SleepSendTableModel tableModel) {
         super(tableModel);
-        this.model = (SleepSendTableModel) tableModel;
+        this.model = tableModel;
     }
 }

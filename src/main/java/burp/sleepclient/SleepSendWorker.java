@@ -14,12 +14,14 @@ public class SleepSendWorker extends SwingWorker {
     public SleepSendWorker(IHttpRequestResponse iReqResp,SleepSendConfig config){
         this.iReqResp = iReqResp;
         this.sleepSendConfig = config;
-        this.sleepSendConfig.getChunkedLogTable().getModel().getChunkedInfos().clear();
-        sleepSendConfig.getChunkedLogTable().getModel().fireTableDataChanged();//通知模型更新
-        sleepSendConfig.getChunkedLogTable().updateUI();//刷新表格
     }
 
     protected Object doInBackground() throws Exception {
+        this.sleepSendConfig.getChunkedLogTable().getChunkedLogModel().getChunkedInfos().clear();
+        sleepSendConfig.getChunkedLogTable().getChunkedLogModel().fireTableDataChanged();//通知模型更新
+        sleepSendConfig.getChunkedLogTable().updateUI();//刷新表格
+        sleepSendConfig.getResponseViewer().setMessage("".getBytes(),true);
+
         byte[] request = iReqResp.getRequest();
         List<String> headers = BurpExtender.helpers.analyzeRequest(request).getHeaders();
         Iterator<String> iter = headers.iterator();

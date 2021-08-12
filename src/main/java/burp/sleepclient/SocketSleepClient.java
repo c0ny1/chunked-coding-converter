@@ -29,7 +29,7 @@ public class SocketSleepClient {
 
     public SocketSleepClient(String url, LinkedHashMap<String,String> headers, byte[] reqBody,SleepSendConfig config) throws MalformedURLException {
         this.url = url;
-        if(url.endsWith("https://")){
+        if(url.startsWith("https://")){
             isSSL = true;
         }else{
             isSSL = false;
@@ -53,9 +53,6 @@ public class SocketSleepClient {
         this.reqBody = reqBody;
 
         this.sleepSendConfig = config;
-        if(sleepSendConfig.isEnableSocks5Proxy()) {
-
-        }
     }
 
 
@@ -97,6 +94,7 @@ public class SocketSleepClient {
         osw.write("\r\n".getBytes());
         osw.flush();
 
+
 //        osw.write("GET / HTTP/1.1\r\n".getBytes());
 //        osw.write("Host: 2021.ip138.com\r\n".getBytes());
 //        osw.write("Connection: close\r\n\r\n".getBytes());
@@ -136,13 +134,17 @@ public class SocketSleepClient {
             executorService.submit(new Runnable() {
                 @Override
                 public void run() {
-                    List<ChunkedInfoEntity> chunkedInfos = sleepSendConfig.getChunkedLogTable().getModel().getChunkedInfos();
-                    synchronized (chunkedInfos) {
-                        double time = DateUtil.betweenMs(startTime, DateUtil.getNowTime());
-                        sleepSendConfig.getLbTotalTime().setText(DateUtil.ms2str(time));
-                        int row = chunkedInfos.size();
-                        chunkedInfos.add(chunkeInfoEntity);
-                        sleepSendConfig.getChunkedLogTable().getModel().fireTableRowsInserted(row, row);
+                    try {
+                        List<ChunkedInfoEntity> chunkedInfos = sleepSendConfig.getChunkedLogTable().getChunkedLogModel().getChunkedInfos();
+                        synchronized (chunkedInfos) {
+                            double time = DateUtil.betweenMs(startTime, DateUtil.getNowTime());
+                            sleepSendConfig.getLbTotalTime().setText(DateUtil.ms2str(time));
+                            int row = chunkedInfos.size();
+                            chunkedInfos.add(chunkeInfoEntity);
+                            sleepSendConfig.getChunkedLogTable().getChunkedLogModel().fireTableRowsInserted(row, row);
+                        }
+                    }catch (Throwable throwable){
+                        throwable.printStackTrace(BurpExtender.stderr);
                     }
                 }
             });
@@ -161,6 +163,7 @@ public class SocketSleepClient {
             osw.flush();
 
             byte[] result = readInputStream(socket.getInputStream());
+
             return result;
         }else{
             return new byte[0];
@@ -222,7 +225,7 @@ public class SocketSleepClient {
         byte[] buffer = new byte[1024];
         while (inputStream.read(buffer) != -1){
             byteArrayOutputStream.write(buffer);
-            Thread.sleep(800);
+            Thread.sleep(1000);
         }
 
         return byteArrayOutputStream.toByteArray();

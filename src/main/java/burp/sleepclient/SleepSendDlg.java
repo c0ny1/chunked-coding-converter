@@ -24,7 +24,7 @@ public class SleepSendDlg extends JDialog implements IMessageEditorController {
     private final JSpinner spMinSleepTime = new JSpinner(new SpinnerNumberModel(0, 0, 10000, 1));
     private final JLabel lbSleepTimeRangeSymbols = new JLabel("-");
     private final JSpinner spMaxSleepTime = new JSpinner(new SpinnerNumberModel(1000, 0, 30000, 1));
-    private JCheckBox dbSocks5Proxy;
+    private JCheckBox cbSocks5Proxy;
     private JTextField tfProxyHost;
     private JTextField tfProxyPort;
 
@@ -183,8 +183,8 @@ public class SleepSendDlg extends JDialog implements IMessageEditorController {
             public void actionPerformed(ActionEvent e) {
                 int n = JOptionPane.showConfirmDialog(null, "Are you sure you want to clear the data？", "Passvie Scan Client prompt", JOptionPane.YES_NO_OPTION);
                 if(n == 0) {
-                    logTable.getModel().getChunkedInfos().clear();
-                    logTable.getModel().fireTableDataChanged();//通知模型更新
+                    logTable.getChunkedLogModel().getChunkedInfos().clear();
+                    logTable.getChunkedLogModel().fireTableDataChanged();//通知模型更新
                     logTable.updateUI();//刷新表格
                     responseViewer.setMessage("".getBytes(),false);
                 }
@@ -214,14 +214,14 @@ public class SleepSendDlg extends JDialog implements IMessageEditorController {
 
 
         int second_row_gridx = 0;
-        dbSocks5Proxy = new JCheckBox("socks5 proxy host:");
+        cbSocks5Proxy = new JCheckBox("socks5 proxy host:");
         GridBagConstraints gbc_enable_socks5 = new GridBagConstraints();
         gbc_enable_socks5.insets = new Insets(0, 0, 0, 5);
         //gbc_enable_socks5.anchor = 13;
         gbc_enable_socks5.fill = 2;
         gbc_enable_socks5.gridx = second_row_gridx;
         gbc_enable_socks5.gridy = 0;
-        FilterPanel.add(dbSocks5Proxy, gbc_enable_socks5);
+        FilterPanel.add(cbSocks5Proxy, gbc_enable_socks5);
         second_row_gridx++;
 
 
@@ -462,6 +462,19 @@ public class SleepSendDlg extends JDialog implements IMessageEditorController {
         spMaxChunkedLen.addChangeListener(changeListener);
         spMinSleepTime.addChangeListener(changeListener);
         spMaxSleepTime.addChangeListener(changeListener);
+        cbSocks5Proxy.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(cbSocks5Proxy.isSelected()){
+                    tfProxyHost.setEnabled(true);
+                    tfProxyPort.setEnabled(true);
+                }else{
+                    tfProxyHost.setEnabled(false);
+                    tfProxyPort.setEnabled(false);
+                }
+            }
+        });
+
     }
 
 
@@ -482,7 +495,7 @@ public class SleepSendDlg extends JDialog implements IMessageEditorController {
         config.setChunkedLogTable(logTable);
         config.setResponseViewer(responseViewer);
 
-        config.setEnableSocks5Proxy(dbSocks5Proxy.isSelected());
+        config.setEnableSocks5Proxy(cbSocks5Proxy.isSelected());
         config.setProxyHost(tfProxyHost.getText());
 
         int proxyPort = 0;
