@@ -102,6 +102,7 @@ public class Menu implements IContextMenuFactory {
                     SleepSendDlg dlg = new SleepSendDlg(iReqResp);
                     BurpExtender.callbacks.customizeUiComponent(dlg);
                     dlg.setVisible(true);
+                    dlg.setSize(1000,800);
                 }catch (Exception ex){
                     ex.printStackTrace(BurpExtender.stderr);
                 }

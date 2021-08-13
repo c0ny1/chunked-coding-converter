@@ -51,9 +51,6 @@ public class SleepSendWorker extends SwingWorker {
         byte[] result = socketSleepClient.send();
         sleepSendConfig.getResponseViewer().setMessage(result, true);
 
-//        logTable.getHttpLogTableModel().fireTableDataChanged();//通知模型更新
-//        logTable.updateUI();//刷新表格
-
         return null;
     }
 }

@@ -8,6 +8,8 @@ import burp.utils.Util;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
@@ -47,6 +49,10 @@ public class SleepSendDlg extends JDialog implements IMessageEditorController {
 
     public double minTotalTime;
     private double maxTotalTime;
+
+
+
+    private SleepSendWorker worker;
 
 
     public SleepSendDlg(final IHttpRequestResponse iReqResp) {
@@ -161,9 +167,15 @@ public class SleepSendDlg extends JDialog implements IMessageEditorController {
         btnSend.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 try {
-                    SleepSendConfig config = getSleepSendConfig();
-                    SleepSendWorker worker = new SleepSendWorker(iReqResp,config);
-                    worker.execute();
+                    if(btnSend.getText().equals("Start")) {
+                        btnSend.setText("Stop");
+                        SleepSendConfig sleepSendConfig = getSleepSendConfig();
+                        worker = new SleepSendWorker(iReqResp, sleepSendConfig);
+                        worker.execute();
+                    }else{
+                        worker.cancel(true);
+                        btnSend.setText("Start");
+                    }
                 }catch (Throwable throwable){
                     throwable.printStackTrace(BurpExtender.stderr);
                 }
@@ -223,17 +235,6 @@ public class SleepSendDlg extends JDialog implements IMessageEditorController {
         gbc_enable_socks5.gridy = 0;
         FilterPanel.add(cbSocks5Proxy, gbc_enable_socks5);
         second_row_gridx++;
-
-
-//        JLabel lbDomain = new JLabel("host:");
-//        GridBagConstraints gbc_lblDomain = new GridBagConstraints();
-//        gbc_lblDomain.insets = new Insets(0, 0, 0, 5);
-//        //gbc_lblDomain.anchor = 13;
-//        gbc_lblDomain.fill = 2;
-//        gbc_lblDomain.gridx = second_row_gridx;
-//        gbc_lblDomain.gridy = 0;
-//        FilterPanel.add(lbDomain, gbc_lblDomain);
-//        second_row_gridx++;
 
 
         tfProxyHost = new JTextField(10);
@@ -405,6 +406,9 @@ public class SleepSendDlg extends JDialog implements IMessageEditorController {
         Dimension screensize=Toolkit.getDefaultToolkit().getScreenSize();
         this.setBounds(screensize.width/2-this.getWidth()/2,screensize.height/2-this.getHeight()/2,this.getWidth(),this.getHeight());
 
+
+
+
         initAction();
         SwingUtilities.invokeLater(new Runnable() {
             @Override
@@ -416,6 +420,10 @@ public class SleepSendDlg extends JDialog implements IMessageEditorController {
                 calcTotalTime();
             }
         });
+    }
+
+    public SleepSendWorker getWorker() {
+        return worker;
     }
 
     public IHttpService getHttpService() {
@@ -457,6 +465,7 @@ public class SleepSendDlg extends JDialog implements IMessageEditorController {
 
 
     private void initAction(){
+        this.addWindowListener(new CloseDialogActionListener(this));
         ChangeListenerImpl changeListener = new ChangeListenerImpl();
         spMinChunkedLen.addChangeListener(changeListener);
         spMaxChunkedLen.addChangeListener(changeListener);
@@ -554,11 +563,52 @@ public class SleepSendDlg extends JDialog implements IMessageEditorController {
         }
     }
 
-    public static void main(String[] args) {
-        double i = 1.0/2;
+    private class CloseDialogActionListener implements WindowListener{
+        SleepSendDlg sleepSendDlg;
+        public CloseDialogActionListener(SleepSendDlg sleepSendDlg){
+            this.sleepSendDlg = sleepSendDlg;
+        }
 
-        System.out.println(i);
-        System.out.println(getInt(i));
-        System.out.println(String.format("%f", i));
+        @Override
+        public void windowOpened(WindowEvent e) {
+
+        }
+
+        @Override
+        public void windowClosing(WindowEvent e) {
+            int n = JOptionPane.showConfirmDialog(sleepSendDlg, "Are you sure you want to clear the data？", "Passvie Scan Client prompt", JOptionPane.YES_NO_OPTION);
+            if(n == JOptionPane.OK_OPTION) {
+                if(sleepSendDlg.getWorker() != null){
+                    sleepSendDlg.getWorker().cancel(true);
+                }
+            }else{
+                sleepSendDlg.setVisible(true);
+            }
+        }
+
+        @Override
+        public void windowClosed(WindowEvent e) {
+
+        }
+
+        @Override
+        public void windowIconified(WindowEvent e) {
+
+        }
+
+        @Override
+        public void windowDeiconified(WindowEvent e) {
+
+        }
+
+        @Override
+        public void windowActivated(WindowEvent e) {
+
+        }
+
+        @Override
+        public void windowDeactivated(WindowEvent e) {
+
+        }
     }
 }
