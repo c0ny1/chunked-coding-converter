@@ -104,6 +104,7 @@ public class SocketSleepClient {
         byte[] buffer = new byte[getRandom(sleepSendConfig.getMinChunkedLen(),sleepSendConfig.getMaxChunkedLen())];
         int id = 1;
         boolean isError = false;
+        String errorMsg = "";
         final String startTime = DateUtil.getNowTime();
         while (byteArrayInputStream.read(buffer) != -1){
             final ChunkedInfoEntity chunkeInfoEntity = new ChunkedInfoEntity();
@@ -129,6 +130,10 @@ public class SocketSleepClient {
             }catch (Throwable throwable){
                 chunkeInfoEntity.setStatus("fail " + throwable.getMessage());
                 isError = true;
+                StringWriter writer = new StringWriter();
+                PrintWriter printWriter = new PrintWriter(writer);
+                throwable.printStackTrace(printWriter);
+                errorMsg = writer.toString();
             }
 
             executorService.submit(new Runnable() {
@@ -163,10 +168,13 @@ public class SocketSleepClient {
             osw.flush();
 
             byte[] result = readInputStream(socket.getInputStream());
-
-            return result;
+            if(result.length == 0){
+                return "read response is null".getBytes();
+            }else{
+                return result;
+            }
         }else{
-            return new byte[0];
+            return errorMsg.getBytes();
         }
     }
 
@@ -223,11 +231,10 @@ public class SocketSleepClient {
     public static byte[] readInputStream(InputStream inputStream) throws IOException, InterruptedException {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         byte[] buffer = new byte[1024];
+        Thread.sleep(1000);
         while (inputStream.read(buffer) != -1){
             byteArrayOutputStream.write(buffer);
-            Thread.sleep(1000);
         }
-
         return byteArrayOutputStream.toByteArray();
     }
 }
