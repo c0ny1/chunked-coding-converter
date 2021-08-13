@@ -57,7 +57,7 @@ public class SocketSleepClient {
 
 
     public byte[] send() throws Exception{
-
+        // connect
         Socket socket = null;
         if(sleepSendConfig.isEnableSocks5Proxy()){
             SocketAddress addr = new InetSocketAddress(sleepSendConfig.getProxyHost(), sleepSendConfig.getProxyPort());
@@ -68,38 +68,56 @@ public class SocketSleepClient {
         }
 
         InetSocketAddress address = new InetSocketAddress(host, port);
-        if(isSSL){
-            X509TrustManagerImpl x509m = new X509TrustManagerImpl();
-            // 获取一个SSLContext实例
-            SSLContext sslContext = SSLContext.getInstance("SSL");
-            // 初始化SSLContext实例
-            sslContext.init(null, new TrustManager[] { x509m }, new java.security.SecureRandom());
-
-            socket.connect(address);
-            socket = sslContext.getSocketFactory().createSocket(socket,address.getHostName(), address.getPort(), true);
-        }else{
-            socket.connect(address);
-        }
-
-
-        //sslSocket.connect(new InetSocketAddress("www.baidu.com",443));
-        OutputStream osw = socket.getOutputStream();
-        osw.write(String.format("%s\r\n",headers.get("top")).getBytes());
-        for(Map.Entry<String,String> header:headers.entrySet()){
-            if(header.getKey().contains("top")){
-                continue;
+        try {
+            if (isSSL) {
+                X509TrustManagerImpl x509m = new X509TrustManagerImpl();
+                // 获取一个SSLContext实例
+                SSLContext sslContext = SSLContext.getInstance("SSL");
+                // 初始化SSLContext实例
+                sslContext.init(null, new TrustManager[]{x509m}, new java.security.SecureRandom());
+                socket.connect(address);
+                socket = sslContext.getSocketFactory().createSocket(socket, address.getHostName(), address.getPort(), true);
+            } else {
+                socket.connect(address);
             }
-            osw.write(String.format("%s: %s\r\n",header.getKey(),header.getValue()).getBytes());
+        }catch (Throwable e){
+            String msg = getThrowableInfo(e);
+            ChunkedInfoEntity chunkedInfoEntity = new ChunkedInfoEntity();
+            chunkedInfoEntity.setId(-1);
+            chunkedInfoEntity.setChunkedContent("-".getBytes());
+            chunkedInfoEntity.setChunkedLen(0);
+            chunkedInfoEntity.setSleepTime(0);
+            chunkedInfoEntity.setStatus("Connect error: " + msg);
+            printLog(chunkedInfoEntity);
+            return msg.getBytes();
         }
-        osw.write("\r\n".getBytes());
-        osw.flush();
 
 
-//        osw.write("GET / HTTP/1.1\r\n".getBytes());
-//        osw.write("Host: 2021.ip138.com\r\n".getBytes());
-//        osw.write("Connection: close\r\n\r\n".getBytes());
-//        osw.flush();
+        OutputStream osw = socket.getOutputStream();
+        // send request header
+        try {
+            osw.write(String.format("%s\r\n", headers.get("top")).getBytes());
+            for (Map.Entry<String, String> header : headers.entrySet()) {
+                if (header.getKey().contains("top")) {
+                    continue;
+                }
+                osw.write(String.format("%s: %s\r\n", header.getKey(), header.getValue()).getBytes());
+            }
+            osw.write("\r\n".getBytes());
+            osw.flush();
+        }catch (Throwable e){
+            String msg = getThrowableInfo(e);
+            ChunkedInfoEntity chunkedInfoEntity = new ChunkedInfoEntity();
+            chunkedInfoEntity.setId(0);
+            chunkedInfoEntity.setChunkedContent("-".getBytes());
+            chunkedInfoEntity.setChunkedLen(0);
+            chunkedInfoEntity.setSleepTime(0);
+            chunkedInfoEntity.setStatus("send request header error: " + msg);
+            printLog(chunkedInfoEntity);
+            return msg.getBytes();
+        }
 
+        // send request body
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(reqBody);
         byte[] buffer = new byte[getRandom(sleepSendConfig.getMinChunkedLen(),sleepSendConfig.getMaxChunkedLen())];
         int id = 1;
@@ -130,29 +148,12 @@ public class SocketSleepClient {
             }catch (Throwable throwable){
                 chunkeInfoEntity.setStatus("fail " + throwable.getMessage());
                 isError = true;
-                StringWriter writer = new StringWriter();
-                PrintWriter printWriter = new PrintWriter(writer);
-                throwable.printStackTrace(printWriter);
-                errorMsg = writer.toString();
+                errorMsg = getThrowableInfo(throwable);
             }
 
-            executorService.submit(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        List<ChunkedInfoEntity> chunkedInfos = sleepSendConfig.getChunkedLogTable().getChunkedLogModel().getChunkedInfos();
-                        synchronized (chunkedInfos) {
-                            double time = DateUtil.betweenMs(startTime, DateUtil.getNowTime());
-                            sleepSendConfig.getLbTotalTime().setText(DateUtil.ms2str(time));
-                            int row = chunkedInfos.size();
-                            chunkedInfos.add(chunkeInfoEntity);
-                            sleepSendConfig.getChunkedLogTable().getChunkedLogModel().fireTableRowsInserted(row, row);
-                        }
-                    }catch (Throwable throwable){
-                        throwable.printStackTrace(BurpExtender.stderr);
-                    }
-                }
-            });
+            printLog(chunkeInfoEntity);
+            double time = DateUtil.betweenMs(startTime, DateUtil.getNowTime());
+            sleepSendConfig.getLbTotalTime().setText(DateUtil.ms2str(time));
 
             buffer = new byte[getRandom(sleepSendConfig.getMinChunkedLen(),sleepSendConfig.getMaxChunkedLen())];
             sleepSendConfig.getLbTotalChunked().setText(String.valueOf(id));
@@ -179,6 +180,33 @@ public class SocketSleepClient {
     }
 
 
+    public String getThrowableInfo(Throwable throwable){
+        StringWriter writer = new StringWriter();
+        PrintWriter printWriter = new PrintWriter(writer);
+        throwable.printStackTrace(printWriter);
+        return writer.toString();
+    }
+
+
+    public void printLog(final ChunkedInfoEntity chunkeInfoEntity){
+        executorService.submit(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    List<ChunkedInfoEntity> chunkedInfos = sleepSendConfig.getChunkedLogTable().getChunkedLogModel().getChunkedInfos();
+                    synchronized (chunkedInfos) {
+                        int row = chunkedInfos.size();
+                        chunkedInfos.add(chunkeInfoEntity);
+                        sleepSendConfig.getChunkedLogTable().getChunkedLogModel().fireTableRowsInserted(row, row);
+                    }
+                }catch (Throwable throwable){
+                    throwable.printStackTrace(BurpExtender.stderr);
+                }
+            }
+        });
+    }
+
+
     public static int getRandom(int min,int max) throws Exception {
         if(max<min){
             throw new Exception("max must be > min");
@@ -188,7 +216,6 @@ public class SocketSleepClient {
     }
 
     public static void main(String[] args) throws NoSuchAlgorithmException, IOException, KeyManagementException, InterruptedException {
-
 //        X509TrustManagerImpl x509m = new X509TrustManagerImpl();
 //        // 获取一个SSLContext实例
 //        SSLContext sslContext = SSLContext.getInstance("SSL");
