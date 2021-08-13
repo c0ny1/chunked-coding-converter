@@ -51,6 +51,7 @@ public class SleepSendWorker extends SwingWorker {
         byte[] result = socketSleepClient.send();
         sleepSendConfig.getResponseViewer().setMessage(result, true);
 
+        sleepSendConfig.getBtnSend().setText("Start");
         return null;
     }
 }

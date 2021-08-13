@@ -19,6 +19,7 @@ public class SleepSendConfig {
     private ChunkedLogTable chunkedLogTable;
     private JProgressBar pgBar;
     private IMessageEditor responseViewer;
+    private JButton btnSend;
 
     public int getMinChunkedLen() {
         return minChunkedLen;
@@ -114,5 +115,13 @@ public class SleepSendConfig {
 
     public void setPgBar(JProgressBar pgBar) {
         this.pgBar = pgBar;
+    }
+
+    public JButton getBtnSend() {
+        return btnSend;
+    }
+
+    public void setBtnSend(JButton btnSend) {
+        this.btnSend = btnSend;
     }
 }

@@ -178,6 +178,7 @@ public class SleepSendDlg extends JDialog implements IMessageEditorController {
                         btnSend.setText("Start");
                     }
                 }catch (Throwable throwable){
+                    btnSend.setText("Start");
                     throwable.printStackTrace(BurpExtender.stderr);
                 }
             }
@@ -511,6 +512,7 @@ public class SleepSendDlg extends JDialog implements IMessageEditorController {
         config.setChunkedLogTable(logTable);
         config.setResponseViewer(responseViewer);
         config.setPgBar(pgBar);
+        config.setBtnSend(btnSend);
 
         config.setEnableSocks5Proxy(cbSocks5Proxy.isSelected());
         config.setProxyHost(tfProxyHost.getText());

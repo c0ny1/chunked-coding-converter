@@ -173,6 +173,7 @@ public class SocketSleepClient {
             osw.write("0\r\n\r\n".getBytes());
             osw.flush();
             pgBar.setValue(reqBody.length);
+            sleepSendConfig.getResponseViewer().setMessage("Reading Response, please wait...".getBytes(),false);
             byte[] result = readInputStream(socket.getInputStream());
             if(result.length == 0){
                 return "read response is null".getBytes();
