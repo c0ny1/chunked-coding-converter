@@ -68,7 +68,8 @@ public class Transfer {
         Iterator<String> iter = headers.iterator();
         Boolean isChunked = false;//是否被分块编码过
         while (iter.hasNext()) {
-            if (((String)iter.next()).contains("Transfer-Encoding")) {
+            String reqHeader = iter.next().toLowerCase();
+            if (reqHeader.contains("transfer-encoding") && reqHeader.contains("chunked")) {
                 iter.remove();
                 isChunked = true;
             }
@@ -180,7 +181,8 @@ public class Transfer {
         List<String> headers = BurpExtender.helpers.analyzeRequest(request).getHeaders();
         Iterator<String> iter = headers.iterator();
         while (iter.hasNext()) {
-            if (((String)iter.next()).contains("Transfer-Encoding")) {
+            String reqHeader = iter.next().toLowerCase();
+            if (reqHeader.contains("transfer-encoding") && reqHeader.contains("chunked")) {
                 return true;
             }
         }
