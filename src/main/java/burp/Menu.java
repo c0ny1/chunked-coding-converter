@@ -18,12 +18,12 @@ public class Menu implements IContextMenuFactory {
         JMenuItem encodeChunked = new JMenuItem("Encoding request body");
         JMenuItem decodeChunked = new JMenuItem("Decoding request body");
         JMenuItem config = new JMenuItem("Config");
-        JMenuItem sleepClient = new JMenuItem("Sleep client");
+        JMenuItem sleepClient = new JMenuItem("Sleep send client");
         chunkedMenu.add(encodeChunked);
         chunkedMenu.add(decodeChunked);
+        chunkedMenu.add(config);
         chunkedMenu.addSeparator();
         chunkedMenu.add(sleepClient);
-        chunkedMenu.add(config);
 
         //若数据包无法编辑，则将编码解码菜单项设置为禁用
         if(invocation.getInvocationContext() != IContextMenuInvocation.CONTEXT_MESSAGE_EDITOR_REQUEST){
@@ -102,7 +102,7 @@ public class Menu implements IContextMenuFactory {
                     SleepSendDlg dlg = new SleepSendDlg(iReqResp);
                     BurpExtender.callbacks.customizeUiComponent(dlg);
                     dlg.setVisible(true);
-                    dlg.setSize(1000,800);
+                    dlg.setSize(1150,800);
                 }catch (Exception ex){
                     ex.printStackTrace(BurpExtender.stderr);
                 }

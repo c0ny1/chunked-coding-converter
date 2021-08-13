@@ -6,6 +6,7 @@ import burp.utils.DateUtil;
 import burp.utils.Util;
 
 import javax.net.ssl.*;
+import javax.swing.*;
 import java.io.*;
 import java.net.*;
 import java.security.KeyManagementException;
@@ -57,6 +58,8 @@ public class SocketSleepClient {
 
 
     public byte[] send() throws Exception{
+        JProgressBar pgBar = sleepSendConfig.getPgBar();
+        pgBar.setValue(0);
         // connect
         Socket socket = null;
         if(sleepSendConfig.isEnableSocks5Proxy()){
@@ -143,6 +146,7 @@ public class SocketSleepClient {
                 osw.write(chunked);
                 osw.flush();
                 chunkeInfoEntity.setStatus("ok");
+                pgBar.setValue(pgBar.getValue() + buffer.length);
                 // 延时
                 Thread.sleep(sleeptime);
             }catch (Throwable throwable){
@@ -152,6 +156,7 @@ public class SocketSleepClient {
             }
 
             printLog(chunkeInfoEntity);
+
             double time = DateUtil.betweenMs(startTime, DateUtil.getNowTime());
             sleepSendConfig.getLbTotalTime().setText(DateUtil.ms2str(time));
 
@@ -167,7 +172,7 @@ public class SocketSleepClient {
         if(!isError) {
             osw.write("0\r\n\r\n".getBytes());
             osw.flush();
-
+            pgBar.setValue(reqBody.length);
             byte[] result = readInputStream(socket.getInputStream());
             if(result.length == 0){
                 return "read response is null".getBytes();

@@ -17,6 +17,7 @@ public class SleepSendConfig {
     private JLabel lbTotalChunked;
     private JLabel lbTotalTime;
     private ChunkedLogTable chunkedLogTable;
+    private JProgressBar pgBar;
     private IMessageEditor responseViewer;
 
     public int getMinChunkedLen() {
@@ -105,5 +106,13 @@ public class SleepSendConfig {
 
     public void setResponseViewer(IMessageEditor responseViewer) {
         this.responseViewer = responseViewer;
+    }
+
+    public JProgressBar getPgBar() {
+        return pgBar;
+    }
+
+    public void setPgBar(JProgressBar pgBar) {
+        this.pgBar = pgBar;
     }
 }

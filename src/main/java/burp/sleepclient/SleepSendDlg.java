@@ -49,6 +49,7 @@ public class SleepSendDlg extends JDialog implements IMessageEditorController {
 
     public double minTotalTime;
     private double maxTotalTime;
+    private JProgressBar pgBar;
 
 
 
@@ -397,6 +398,12 @@ public class SleepSendDlg extends JDialog implements IMessageEditorController {
         JScrollPane jspLogTable = new JScrollPane(logTable);
         splitPane.setBottomComponent(jspLogTable);
 
+
+        pgBar = new JProgressBar();
+        pgBar.setMinimum(0);
+        pgBar.setMaximum(reqBodyLen);
+        contentPane.add(pgBar,BorderLayout.SOUTH);
+
         BurpExtender.callbacks.customizeUiComponent(topPanel);
         BurpExtender.callbacks.customizeUiComponent(btnSend);
         BurpExtender.callbacks.customizeUiComponent(splitPane);
@@ -503,6 +510,7 @@ public class SleepSendDlg extends JDialog implements IMessageEditorController {
         config.setLbTotalTime(lbTotalTime);
         config.setChunkedLogTable(logTable);
         config.setResponseViewer(responseViewer);
+        config.setPgBar(pgBar);
 
         config.setEnableSocks5Proxy(cbSocks5Proxy.isSelected());
         config.setProxyHost(tfProxyHost.getText());
