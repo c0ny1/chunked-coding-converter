@@ -400,7 +400,7 @@ public class SleepSendDlg extends JDialog {
 
         pgBar = new JProgressBar();
         pgBar.setMinimum(0);
-        pgBar.setMaximum(reqBodyLen);
+        pgBar.setMaximum(reqBodyLen + 1);
         contentPane.add(pgBar,BorderLayout.SOUTH);
 
         BurpExtender.callbacks.customizeUiComponent(topPanel);

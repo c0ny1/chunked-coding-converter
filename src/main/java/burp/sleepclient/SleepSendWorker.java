@@ -52,6 +52,9 @@ public class SleepSendWorker extends SwingWorker {
         sleepSendConfig.getResponseViewer().setMessage(result, true);
 
         sleepSendConfig.getBtnSend().setText("Start");
+        // 完成最后一步进度的设置
+        JProgressBar pgBar = sleepSendConfig.getPgBar();
+        pgBar.setValue(request.length + 1);
         return null;
     }
 }
