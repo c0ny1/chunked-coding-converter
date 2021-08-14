@@ -307,7 +307,7 @@ public class SleepSendDlg extends JDialog {
         FilterPanel.add(Box.createVerticalBox(), gbc_vb);
         second_row_gridx++;
 
-        JLabel lbSucces = new JLabel("total chunked:");
+        JLabel lbSucces = new JLabel("sented chunked:");
         GridBagConstraints gbc_lbSucces = new GridBagConstraints();
         gbc_lbSucces.insets = new Insets(0, 0, 0, 5);
         gbc_lbSucces.fill = 2;
@@ -346,7 +346,7 @@ public class SleepSendDlg extends JDialog {
         FilterPanel.add(Box.createVerticalBox(), gbc_vb3);
         second_row_gridx++;
 
-        lbTotalTime = new JLabel("total time:");
+        lbTotalTime = new JLabel("send time:");
         GridBagConstraints gbc_lbFail = new GridBagConstraints();
         gbc_lbFail.insets = new Insets(0, 0, 0, 5);
         gbc_lbFail.fill = 2;
