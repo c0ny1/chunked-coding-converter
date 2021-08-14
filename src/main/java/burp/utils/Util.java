@@ -5,6 +5,8 @@ import burp.IHttpRequestResponse;
 import burp.IHttpService;
 import burp.IRequestInfo;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -183,9 +185,19 @@ public class Util {
     }
 
 
-    public static void main(String[] args) {
-        byte[] ewee = "wewewe.w".getBytes();
-        List<byte[]> xssd = getByteRandomLenList(ewee,1,4);
-        System.out.println(xssd);
+    public static int getRandom(int min,int max) throws Exception {
+        if(max<min){
+            throw new Exception("max must be > min");
+        }
+        int random = (int) (Math.random()*(max-min)+min);
+        return random;
+    }
+
+
+    public static String getThrowableInfo(Throwable throwable){
+        StringWriter writer = new StringWriter();
+        PrintWriter printWriter = new PrintWriter(writer);
+        throwable.printStackTrace(printWriter);
+        return writer.toString();
     }
 }

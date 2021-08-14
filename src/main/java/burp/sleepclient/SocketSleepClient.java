@@ -9,8 +9,6 @@ import javax.net.ssl.*;
 import javax.swing.*;
 import java.io.*;
 import java.net.*;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -84,7 +82,7 @@ public class SocketSleepClient {
                 socket.connect(address);
             }
         }catch (Throwable e){
-            String msg = getThrowableInfo(e);
+            String msg = Util.getThrowableInfo(e);
             ChunkedInfoEntity chunkedInfoEntity = new ChunkedInfoEntity();
             chunkedInfoEntity.setId(-1);
             chunkedInfoEntity.setChunkedContent("-".getBytes());
@@ -109,7 +107,7 @@ public class SocketSleepClient {
             osw.write("\r\n".getBytes());
             osw.flush();
         }catch (Throwable e){
-            String msg = getThrowableInfo(e);
+            String msg = Util.getThrowableInfo(e);
             ChunkedInfoEntity chunkedInfoEntity = new ChunkedInfoEntity();
             chunkedInfoEntity.setId(0);
             chunkedInfoEntity.setChunkedContent("-".getBytes());
@@ -122,7 +120,7 @@ public class SocketSleepClient {
 
         // send request body
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(reqBody);
-        byte[] buffer = new byte[getRandom(sleepSendConfig.getMinChunkedLen(),sleepSendConfig.getMaxChunkedLen())];
+        byte[] buffer = new byte[Util.getRandom(sleepSendConfig.getMinChunkedLen(),sleepSendConfig.getMaxChunkedLen())];
         int id = 1;
         boolean isError = false;
         String errorMsg = "";
@@ -138,7 +136,7 @@ public class SocketSleepClient {
                 osw.flush();
 
                 // 发送分块内容
-                int sleeptime = getRandom(sleepSendConfig.getMinSleepTime(), sleepSendConfig.getMaxSleepTime());
+                int sleeptime = Util.getRandom(sleepSendConfig.getMinSleepTime(), sleepSendConfig.getMaxSleepTime());
                 chunkeInfoEntity.setSleepTime(sleeptime);
                 byte[] chunked = Transfer.joinByteArray(buffer, "\r\n".getBytes());
                 BurpExtender.stdout.println(new String(chunked));
@@ -152,7 +150,7 @@ public class SocketSleepClient {
             }catch (Throwable throwable){
                 chunkeInfoEntity.setStatus("fail " + throwable.getMessage());
                 isError = true;
-                errorMsg = getThrowableInfo(throwable);
+                errorMsg = Util.getThrowableInfo(throwable);
             }
 
             printLog(chunkeInfoEntity);
@@ -160,7 +158,7 @@ public class SocketSleepClient {
             double time = DateUtil.betweenMs(startTime, DateUtil.getNowTime());
             sleepSendConfig.getLbTotalTime().setText(DateUtil.ms2str(time));
 
-            buffer = new byte[getRandom(sleepSendConfig.getMinChunkedLen(),sleepSendConfig.getMaxChunkedLen())];
+            buffer = new byte[Util.getRandom(sleepSendConfig.getMinChunkedLen(),sleepSendConfig.getMaxChunkedLen())];
             sleepSendConfig.getLbTotalChunked().setText(String.valueOf(id));
             id ++;
 
@@ -186,14 +184,6 @@ public class SocketSleepClient {
     }
 
 
-    public String getThrowableInfo(Throwable throwable){
-        StringWriter writer = new StringWriter();
-        PrintWriter printWriter = new PrintWriter(writer);
-        throwable.printStackTrace(printWriter);
-        return writer.toString();
-    }
-
-
     public void printLog(final ChunkedInfoEntity chunkeInfoEntity){
         executorService.submit(new Runnable() {
             @Override
@@ -212,59 +202,9 @@ public class SocketSleepClient {
         });
     }
 
-
-    public static int getRandom(int min,int max) throws Exception {
-        if(max<min){
-            throw new Exception("max must be > min");
-        }
-        int random = (int) (Math.random()*(max-min)+min);
-        return random;
-    }
-
-    public static void main(String[] args) throws NoSuchAlgorithmException, IOException, KeyManagementException, InterruptedException {
-//        X509TrustManagerImpl x509m = new X509TrustManagerImpl();
-//        // 获取一个SSLContext实例
-//        SSLContext sslContext = SSLContext.getInstance("SSL");
-//        // 初始化SSLContext实例
-//        sslContext.init(null, new TrustManager[] { x509m }, new java.security.SecureRandom());
-//
-//
-//        String prxyhost = "127.0.0.1";
-//        int prxyport = 1188;
-//        SocketAddress addr = new InetSocketAddress(prxyhost, Integer.valueOf(prxyport));
-//        Proxy proxy = new Proxy(Proxy.Type.SOCKS, addr);
-//        Socket socket = new Socket(proxy);
-//
-//        InetSocketAddress address = new InetSocketAddress("2021.ip138.com", 443);
-//        socket.connect(address);
-//
-//        Socket sslSocket = sslContext.getSocketFactory().createSocket(socket,address.getHostName(), address.getPort(), true);
-//
-//        //sslSocket.connect(new InetSocketAddress("www.baidu.com",443));
-//
-//
-//
-//        OutputStream osw = sslSocket.getOutputStream();
-//        osw.write("GET / HTTP/1.1\r\n".getBytes());
-//        osw.write("Host: 2021.ip138.com\r\n".getBytes());
-//        osw.write("Connection: close\r\n\r\n".getBytes());
-//        osw.flush();
-//
-//        byte[] result = readInputStream(sslSocket.getInputStream());
-//
-//        System.out.println(new String(result));
-
-        URL x = new URL("http://www.baidu.com");
-        System.out.println(x.getPort());
-
-    }
-
-
-
     public static byte[] readInputStream(InputStream inputStream) throws IOException, InterruptedException {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         byte[] buffer = new byte[1024];
-        Thread.sleep(1000);
         while (inputStream.read(buffer) != -1){
             byteArrayOutputStream.write(buffer);
         }

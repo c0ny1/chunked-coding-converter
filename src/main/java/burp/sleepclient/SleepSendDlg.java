@@ -15,7 +15,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-public class SleepSendDlg extends JDialog implements IMessageEditorController {
+public class SleepSendDlg extends JDialog {
     private final IHttpRequestResponse iReqResp;
     private JPanel contentPane;
     private JLabel lbHost;
@@ -29,12 +29,10 @@ public class SleepSendDlg extends JDialog implements IMessageEditorController {
     private JCheckBox cbSocks5Proxy;
     private JTextField tfProxyHost;
     private JTextField tfProxyPort;
-
     private JButton btnSend;
     private JButton btnClear;
     private JSplitPane splitPane;
     public  ChunkedLogTable logTable;
-    public  IHttpRequestResponse currentlyDisplayedItem;
     public JLabel lbMinMaxTotalTime;
     public JLabel lbRequestCount;
     private JLabel lbChunkedLenMinMax;
@@ -389,8 +387,8 @@ public class SleepSendDlg extends JDialog implements IMessageEditorController {
         logTable = new ChunkedLogTable(model);
 
         JTabbedPane tabs = new JTabbedPane();
-        requestViewer = BurpExtender.callbacks.createMessageEditor(this, false);
-        responseViewer = BurpExtender.callbacks.createMessageEditor(this, false);
+        requestViewer = BurpExtender.callbacks.createMessageEditor(null, false);
+        responseViewer = BurpExtender.callbacks.createMessageEditor(null, false);
 
         tabs.addTab("Request", requestViewer.getComponent());
         tabs.addTab("Response", responseViewer.getComponent());
@@ -410,12 +408,10 @@ public class SleepSendDlg extends JDialog implements IMessageEditorController {
         BurpExtender.callbacks.customizeUiComponent(splitPane);
         BurpExtender.callbacks.customizeUiComponent(contentPane);
 
-        this.pack();
+        //this.pack();
+        this.setSize(1150,800);
         Dimension screensize=Toolkit.getDefaultToolkit().getScreenSize();
         this.setBounds(screensize.width/2-this.getWidth()/2,screensize.height/2-this.getHeight()/2,this.getWidth(),this.getHeight());
-
-
-
 
         initAction();
         SwingUtilities.invokeLater(new Runnable() {
@@ -433,20 +429,6 @@ public class SleepSendDlg extends JDialog implements IMessageEditorController {
     public SleepSendWorker getWorker() {
         return worker;
     }
-
-    public IHttpService getHttpService() {
-        return currentlyDisplayedItem.getHttpService();
-    }
-
-    public byte[] getRequest() {
-        return currentlyDisplayedItem.getRequest();
-    }
-
-    public byte[] getResponse() {
-        return currentlyDisplayedItem.getResponse();
-    }
-
-
 
     public class ChangeListenerImpl implements ChangeListener{
         @Override
