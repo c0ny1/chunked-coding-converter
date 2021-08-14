@@ -568,7 +568,7 @@ public class SleepSendDlg extends JDialog {
 
         @Override
         public void windowClosing(WindowEvent e) {
-            int n = JOptionPane.showConfirmDialog(sleepSendDlg, "Are you sure you want to clear the data？", "Passvie Scan Client prompt", JOptionPane.YES_NO_OPTION);
+            int n = JOptionPane.showConfirmDialog(sleepSendDlg, "Are you sure you want to close the current window？", "sleep send client prompt", JOptionPane.YES_NO_OPTION);
             if(n == JOptionPane.OK_OPTION) {
                 if(sleepSendDlg.getWorker() != null){
                     sleepSendDlg.getWorker().cancel(true);

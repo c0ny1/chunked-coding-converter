@@ -25,6 +25,8 @@ public class SocketSleepClient {
     private boolean isSSL;
     private LinkedHashMap<String,String> headers = new LinkedHashMap<String, String>();
     private byte[] reqBody;
+    private int totalLen; // 要分块内容的总长度
+    private int sentedLen; // 已经发送数据的长度
 
     public SocketSleepClient(String url, LinkedHashMap<String,String> headers, byte[] reqBody,SleepSendConfig config) throws MalformedURLException {
         this.url = url;
@@ -50,14 +52,15 @@ public class SocketSleepClient {
         this.headers.remove("Connection");
         this.headers.put("Connection","keep-alive");
         this.reqBody = reqBody;
-
+        this.totalLen = reqBody.length;
         this.sleepSendConfig = config;
     }
 
 
     public byte[] send() throws Exception{
+        this.sentedLen = 0;
         JProgressBar pgBar = sleepSendConfig.getPgBar();
-        pgBar.setValue(0);
+        pgBar.setValue(sentedLen);
         // connect
         Socket socket = null;
         if(sleepSendConfig.isEnableSocks5Proxy()){
@@ -120,7 +123,7 @@ public class SocketSleepClient {
 
         // send request body
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(reqBody);
-        byte[] buffer = new byte[Util.getRandom(sleepSendConfig.getMinChunkedLen(),sleepSendConfig.getMaxChunkedLen())];
+        byte[] buffer = new byte[calcRandomChunkedLen()];
         int id = 1;
         boolean isError = false;
         String errorMsg = "";
@@ -136,16 +139,17 @@ public class SocketSleepClient {
                 osw.flush();
 
                 // 发送分块内容
-                int sleeptime = Util.getRandom(sleepSendConfig.getMinSleepTime(), sleepSendConfig.getMaxSleepTime());
-                chunkeInfoEntity.setSleepTime(sleeptime);
                 byte[] chunked = Transfer.joinByteArray(buffer, "\r\n".getBytes());
                 BurpExtender.stdout.println(new String(chunked));
                 chunkeInfoEntity.setChunkedContent(buffer);
                 osw.write(chunked);
                 osw.flush();
                 chunkeInfoEntity.setStatus("ok");
-                pgBar.setValue(pgBar.getValue() + buffer.length);
+                this.sentedLen += buffer.length;
+                pgBar.setValue(this.sentedLen);
                 // 延时
+                int sleeptime = Util.getRandom(sleepSendConfig.getMinSleepTime(), sleepSendConfig.getMaxSleepTime());
+                chunkeInfoEntity.setSleepTime(sleeptime);
                 Thread.sleep(sleeptime);
             }catch (Throwable throwable){
                 chunkeInfoEntity.setStatus("fail " + throwable.getMessage());
@@ -158,7 +162,7 @@ public class SocketSleepClient {
             double time = DateUtil.betweenMs(startTime, DateUtil.getNowTime());
             sleepSendConfig.getLbTotalTime().setText(DateUtil.ms2str(time));
 
-            buffer = new byte[Util.getRandom(sleepSendConfig.getMinChunkedLen(),sleepSendConfig.getMaxChunkedLen())];
+            buffer = new byte[calcRandomChunkedLen()];
             sleepSendConfig.getLbTotalChunked().setText(String.valueOf(id));
             id ++;
 
@@ -170,10 +174,10 @@ public class SocketSleepClient {
         if(!isError) {
             osw.write("0\r\n\r\n".getBytes());
             osw.flush();
-            pgBar.setValue(reqBody.length);
+            pgBar.setValue(totalLen);
             sleepSendConfig.getResponseViewer().setMessage("Reading Response, please wait...".getBytes(),false);
             byte[] result = readInputStream(socket.getInputStream());
-            pgBar.setValue(reqBody.length + 1);
+            pgBar.setValue(totalLen + 1);
             if(result.length == 0){
                 return "read response is null".getBytes();
             }else{
@@ -182,6 +186,15 @@ public class SocketSleepClient {
         }else{
             return errorMsg.getBytes();
         }
+    }
+
+
+    public int calcRandomChunkedLen() throws Exception {
+        int randomLen = Util.getRandom(sleepSendConfig.getMinChunkedLen(),sleepSendConfig.getMaxChunkedLen());
+        if(this.sentedLen + randomLen > this.totalLen){
+            randomLen = this.totalLen - this.sentedLen;
+        }
+        return randomLen;
     }
 
 
