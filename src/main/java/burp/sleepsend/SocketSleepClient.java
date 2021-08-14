@@ -1,4 +1,4 @@
-package burp.sleepclient;
+package burp.sleepsend;
 
 import burp.BurpExtender;
 import burp.Transfer;
@@ -217,18 +217,9 @@ public class SocketSleepClient {
         });
     }
 
-    public static byte[] readInputStream(InputStream inputStream) throws IOException, InterruptedException {
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        byte[] buffer = new byte[1024];
-        while (inputStream.read(buffer) != -1){
-            byteArrayOutputStream.write(buffer);
-        }
-        return byteArrayOutputStream.toByteArray();
-    }
-
 
     public static byte[] readFullHttpResponse(InputStream inputStream) throws IOException, InterruptedException {
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         byte[] buffer = new byte[1];
         boolean isChunked = false; //是否是分块回传
         int contentLength = 0;
@@ -237,8 +228,8 @@ public class SocketSleepClient {
 
         while (true){
             int flag = inputStream.read(buffer);
-            byteArrayOutputStream.write(buffer);
-            byte[] readedContent = byteArrayOutputStream.toByteArray();
+            outputStream.write(buffer);
+            byte[] readedContent = outputStream.toByteArray();
             if(!proccessedHeader && Util.bytesEndWith(readedContent,"\r\n\r\n".getBytes())){
                 Map headers = new HashMap<String,String>();
                 String responseHeader = new String(readedContent);
@@ -271,8 +262,6 @@ public class SocketSleepClient {
                 break;
             }
         }
-        return byteArrayOutputStream.toByteArray();
+        return outputStream.toByteArray();
     }
-
-
 }

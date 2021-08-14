@@ -1,4 +1,4 @@
-package burp.sleepclient;
+package burp.sleepsend;
 
 import burp.*;
 

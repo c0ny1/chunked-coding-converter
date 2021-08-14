@@ -1,5 +1,7 @@
 package burp;
 
+import burp.sleepsend.SleepSendTableModel;
+
 import javax.swing.*;
 
 public class ChunkedLogTable extends JTable {

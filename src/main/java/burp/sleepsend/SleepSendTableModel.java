@@ -1,7 +1,6 @@
-package burp;
+package burp.sleepsend;
 
 
-import burp.sleepclient.ChunkedInfoEntity;
 import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +15,7 @@ public class SleepSendTableModel extends AbstractTableModel {
 		title.add("id");
 		title.add("chunked content");
 		title.add("chunked length");
-		title.add("sleep time(ms)");
+		title.add("sleep time (ms)");
 		title.add("status");
 	}
 
@@ -72,8 +71,4 @@ public class SleepSendTableModel extends AbstractTableModel {
 //	public Class<?> getColumnClass(int columnIndex) {
 //		return getValueAt(0,columnIndex).getClass();
 //	}
-
-
-
-
 }

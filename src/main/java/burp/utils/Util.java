@@ -5,10 +5,14 @@ import burp.IHttpRequestResponse;
 import burp.IHttpService;
 import burp.IRequestInfo;
 
+import javax.swing.*;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableColumn;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Random;
 
@@ -211,5 +215,23 @@ public class Util {
             }
         }
         return true;
+    }
+
+    public static void resizeTableColumnWidth(JTable table, Double[] columnWidths) {
+        JTableHeader header = table.getTableHeader();
+        //Double width = header.getPreferredSize().getWidth();// 无法获取到正确的宽
+        //Double width = header.getWidth(); //0
+        Double width = (double) table.getWidth();
+
+        Enumeration columns = table.getColumnModel().getColumns();
+        int i = 0;
+        while (columns.hasMoreElements()) {
+            TableColumn column = (TableColumn) columns.nextElement();
+            int newWidth = (int)Math.round(columnWidths[i] * width);
+            header.setResizingColumn(column); // 此行很重要
+            column.setWidth(newWidth);
+            //column.setPreferredWidth(newWidth);
+            i++;
+        }
     }
 }

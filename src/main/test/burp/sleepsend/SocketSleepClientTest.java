@@ -1,13 +1,11 @@
-package burp.sleepclient;
+package burp.sleepsend;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import java.io.*;
 import java.net.*;
-import java.util.HashMap;
-import java.util.Map;
 
-import static burp.sleepclient.SocketSleepClient.readFullHttpResponse;
+import static burp.sleepsend.SocketSleepClient.readFullHttpResponse;
 
 public class SocketSleepClientTest {
 

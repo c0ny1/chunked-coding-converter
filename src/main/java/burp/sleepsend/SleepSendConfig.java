@@ -1,10 +1,9 @@
-package burp.sleepclient;
+package burp.sleepsend;
 
 import burp.ChunkedLogTable;
 import burp.IMessageEditor;
 
 import javax.swing.*;
-import java.util.List;
 
 public class SleepSendConfig {
     private int minChunkedLen;

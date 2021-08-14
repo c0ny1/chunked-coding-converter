@@ -1,4 +1,4 @@
-package burp.sleepclient;
+package burp.sleepsend;
 
 public class ChunkedInfoEntity {
     private int id;

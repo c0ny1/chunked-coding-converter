@@ -1,4 +1,4 @@
-package burp.sleepclient;
+package burp.sleepsend;
 
 import burp.*;
 import burp.utils.DateUtil;
@@ -385,6 +385,8 @@ public class SleepSendDlg extends JDialog {
 
         SleepSendTableModel model = new SleepSendTableModel();
         logTable = new ChunkedLogTable(model);
+        logTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+
 
         JTabbedPane tabs = new JTabbedPane();
         requestViewer = BurpExtender.callbacks.createMessageEditor(null, false);
@@ -422,6 +424,9 @@ public class SleepSendDlg extends JDialog {
                 splitPane.setDividerLocation(0.5);
                 calcTotalChunked();
                 calcTotalTime();
+
+                Double[] columnWidths = {0.05d,0.5d,0.1d,0.1d,0.25d};
+                Util.resizeTableColumnWidth(logTable,columnWidths);
             }
         });
     }
