@@ -200,4 +200,16 @@ public class Util {
         throwable.printStackTrace(printWriter);
         return writer.toString();
     }
+
+    public static boolean bytesEndWith(byte[] bytes, byte[] end){
+        int endLen = end.length;
+        int bytesLen = bytes.length;
+
+        for(int i=1;i<end.length;i++){
+            if(end[endLen - i] != bytes[bytesLen - i]){
+                return false;
+            }
+        }
+        return true;
+    }
 }

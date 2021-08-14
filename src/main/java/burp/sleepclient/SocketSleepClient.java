@@ -9,6 +9,7 @@ import javax.net.ssl.*;
 import javax.swing.*;
 import java.io.*;
 import java.net.*;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -176,7 +177,7 @@ public class SocketSleepClient {
             osw.flush();
             pgBar.setValue(totalLen);
             sleepSendConfig.getResponseViewer().setMessage("Reading Response, please wait...".getBytes(),false);
-            byte[] result = readInputStream(socket.getInputStream());
+            byte[] result = readFullHttpResponse(socket.getInputStream());
             pgBar.setValue(totalLen + 1);
             if(result.length == 0){
                 return "read response is null".getBytes();
@@ -224,4 +225,54 @@ public class SocketSleepClient {
         }
         return byteArrayOutputStream.toByteArray();
     }
+
+
+    public static byte[] readFullHttpResponse(InputStream inputStream) throws IOException, InterruptedException {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        byte[] buffer = new byte[1];
+        boolean isChunked = false; //是否是分块回传
+        int contentLength = 0;
+        int acceptedLength = 0;
+        boolean proccessedHeader = false; //是否处理过header
+
+        while (true){
+            int flag = inputStream.read(buffer);
+            byteArrayOutputStream.write(buffer);
+            byte[] readedContent = byteArrayOutputStream.toByteArray();
+            if(!proccessedHeader && Util.bytesEndWith(readedContent,"\r\n\r\n".getBytes())){
+                Map headers = new HashMap<String,String>();
+                String responseHeader = new String(readedContent);
+                for(String header:responseHeader.split("\r\n")){
+                    if(header.contains(":")){
+                        String reqHeaderKey = header.substring(0,header.indexOf(":")).trim();
+                        String reqHeaderValue = header.substring(header.indexOf(":")+1,header.length()).trim();
+                        headers.put(reqHeaderKey,reqHeaderValue);
+                    }
+                }
+
+                if(headers.containsKey("Content-Length")){
+                    contentLength = Integer.valueOf((String)headers.get("Content-Length"));
+                }else if(headers.containsKey("Transfer-Encoding") && headers.get("Transfer-Encoding").equals("chunked")){
+                    isChunked = true;
+                }
+                proccessedHeader = true;
+            }
+
+            if(isChunked){
+                if(Util.bytesEndWith(readedContent,"\r\n0\r\n\r\n".getBytes())) {
+                    break;
+                }
+            }else if(contentLength != 0){
+                if(acceptedLength == contentLength){
+                    break;
+                }
+                acceptedLength ++;
+            }else if(flag == -1){
+                break;
+            }
+        }
+        return byteArrayOutputStream.toByteArray();
+    }
+
+
 }

@@ -2,11 +2,15 @@ package burp.sleepclient;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.*;
-import static burp.sleepclient.SocketSleepClient.readInputStream;
+import java.util.HashMap;
+import java.util.Map;
+
+import static burp.sleepclient.SocketSleepClient.readFullHttpResponse;
 
 public class SocketSleepClientTest {
+
 
     @org.junit.Test
     public void send() throws Exception {
@@ -34,7 +38,29 @@ public class SocketSleepClientTest {
         osw.write("Connection: close\r\n\r\n".getBytes());
         osw.flush();
 
-        byte[] result = readInputStream(sslSocket.getInputStream());
+        byte[] result = readFullHttpResponse(sslSocket.getInputStream());
         System.out.println(new String(result));
     }
+
+
+
+    public static void sendUrl() throws IOException {
+        byte[] test = "abcdefq".getBytes();
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(test);
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        byte[] buffer = new byte[1];
+        while (inputStream.read(buffer) != -1){
+            byteArrayOutputStream.write(buffer);
+            System.out.println(new String(byteArrayOutputStream.toByteArray()));
+        }
+    }
+
+
+
+
+    public static void main(String[] args) throws IOException {
+        sendUrl();
+    }
+
+
 }
