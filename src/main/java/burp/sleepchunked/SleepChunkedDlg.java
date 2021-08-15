@@ -1,4 +1,4 @@
-package burp.sleepsend;
+package burp.sleepchunked;
 
 import burp.*;
 import burp.utils.DateUtil;
@@ -15,17 +15,17 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-public class SleepSendDlg extends JDialog {
+public class SleepChunkedDlg extends JDialog {
     private final IHttpRequestResponse iReqResp;
     private JPanel contentPane;
     private JLabel lbHost;
-    private final JSpinner spMinChunkedLen = new JSpinner(new SpinnerNumberModel(5, 1, 50, 1));
+    private final JSpinner spMinChunkedLen = new JSpinner(new SpinnerNumberModel(5, 1, 1000, 1));
     private final JLabel lbCommentLenRangeSymbols = new JLabel("-");
-    private final JSpinner spMaxChunkedLen = new JSpinner(new SpinnerNumberModel(25, 1, 50, 1));
+    private final JSpinner spMaxChunkedLen = new JSpinner(new SpinnerNumberModel(25, 1, 1000, 1));
     private JLabel lbUsername;
-    private final JSpinner spMinSleepTime = new JSpinner(new SpinnerNumberModel(0, 0, 10000, 1));
+    private final JSpinner spMinSleepTime = new JSpinner(new SpinnerNumberModel(0, 0, 50000, 1));
     private final JLabel lbSleepTimeRangeSymbols = new JLabel("-");
-    private final JSpinner spMaxSleepTime = new JSpinner(new SpinnerNumberModel(1000, 0, 30000, 1));
+    private final JSpinner spMaxSleepTime = new JSpinner(new SpinnerNumberModel(1000, 0, 50000, 1));
     private JCheckBox cbSocks5Proxy;
     private JTextField tfProxyHost;
     private JTextField tfProxyPort;
@@ -51,13 +51,13 @@ public class SleepSendDlg extends JDialog {
 
 
 
-    private SleepSendWorker worker;
+    private SleepChunkedWorker worker;
 
 
-    public SleepSendDlg(final IHttpRequestResponse iReqResp) {
+    public SleepChunkedDlg(final IHttpRequestResponse iReqResp) {
         this.iReqResp = iReqResp;
         this.setLayout(new GridBagLayout());
-        String title = String.format("sleep send client (%s)", Util.getUrlFormIReqRsp(this.iReqResp));
+        String title = String.format("sleep chunked client (%s)", Util.getUrlFormIReqRsp(this.iReqResp));
         this.setTitle(title);
         contentPane = new JPanel();
         GBC gbclist = new GBC(0, 0).setFill(GBC.BOTH).setWeight(100, 100);
@@ -169,7 +169,7 @@ public class SleepSendDlg extends JDialog {
                     if(btnSend.getText().equals("Start")) {
                         btnSend.setText("Stop");
                         SleepSendConfig sleepSendConfig = getSleepSendConfig();
-                        worker = new SleepSendWorker(iReqResp, sleepSendConfig);
+                        worker = new SleepChunkedWorker(iReqResp, sleepSendConfig);
                         worker.execute();
                     }else{
                         worker.cancel(true);
@@ -431,7 +431,7 @@ public class SleepSendDlg extends JDialog {
         });
     }
 
-    public SleepSendWorker getWorker() {
+    public SleepChunkedWorker getWorker() {
         return worker;
     }
 
@@ -561,8 +561,8 @@ public class SleepSendDlg extends JDialog {
     }
 
     private class CloseDialogActionListener implements WindowListener{
-        SleepSendDlg sleepSendDlg;
-        public CloseDialogActionListener(SleepSendDlg sleepSendDlg){
+        SleepChunkedDlg sleepSendDlg;
+        public CloseDialogActionListener(SleepChunkedDlg sleepSendDlg){
             this.sleepSendDlg = sleepSendDlg;
         }
 

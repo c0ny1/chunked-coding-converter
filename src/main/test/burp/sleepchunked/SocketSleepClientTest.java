@@ -1,11 +1,11 @@
-package burp.sleepsend;
+package burp.sleepchunked;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import java.io.*;
 import java.net.*;
 
-import static burp.sleepsend.SocketSleepClient.readFullHttpResponse;
+import static burp.sleepchunked.SleepChunkedSender.readFullHttpResponse;
 
 public class SocketSleepClientTest {
 

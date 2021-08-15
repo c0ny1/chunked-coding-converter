@@ -1,4 +1,4 @@
-package burp.sleepsend;
+package burp.sleepchunked;
 
 import javax.net.ssl.X509TrustManager;
 import java.security.cert.CertificateException;

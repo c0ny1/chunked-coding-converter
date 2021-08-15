@@ -1,4 +1,4 @@
-package burp.sleepsend;
+package burp.sleepchunked;
 
 import burp.BurpExtender;
 import burp.Transfer;
@@ -17,7 +17,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 // https://www.iteye.com/problems/42407
-public class SocketSleepClient {
+public class SleepChunkedSender {
     private SleepSendConfig sleepSendConfig;
     private ExecutorService executorService  = Executors.newSingleThreadExecutor();
     private String url;
@@ -29,7 +29,7 @@ public class SocketSleepClient {
     private int totalLen; // 要分块内容的总长度
     private int sentedLen; // 已经发送数据的长度
 
-    public SocketSleepClient(String url, LinkedHashMap<String,String> headers, byte[] reqBody,SleepSendConfig config) throws MalformedURLException {
+    public SleepChunkedSender(String url, LinkedHashMap<String,String> headers, byte[] reqBody, SleepSendConfig config) throws MalformedURLException {
         this.url = url;
         if(url.startsWith("https://")){
             isSSL = true;
@@ -50,8 +50,9 @@ public class SocketSleepClient {
         this.headers = headers;
         this.headers.put("Transfer-Encoding","chunked");
         this.headers.remove("Content-Length");
-        this.headers.remove("Connection");
-        this.headers.put("Connection","keep-alive");
+        //this.headers.remove("Connection");
+        //this.headers.put("Connection","keep-alive");
+        //this.headers.put("Connection","close");
         this.reqBody = reqBody;
         this.totalLen = reqBody.length;
         this.sleepSendConfig = config;
@@ -135,8 +136,8 @@ public class SocketSleepClient {
             try {
                 // 发送分块长度
                 final String chunkedLen = Util.decimalToHex(buffer.length) + "\r\n";
-                osw.write(chunkedLen.getBytes());
                 chunkeInfoEntity.setChunkedLen(buffer.length);
+                osw.write(chunkedLen.getBytes());
                 osw.flush();
 
                 // 发送分块内容

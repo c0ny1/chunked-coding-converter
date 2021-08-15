@@ -1,6 +1,6 @@
 package burp;
 
-import burp.sleepsend.SleepSendDlg;
+import burp.sleepchunked.SleepChunkedDlg;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -18,7 +18,7 @@ public class Menu implements IContextMenuFactory {
         JMenuItem encodeChunked = new JMenuItem("Encoding request body");
         JMenuItem decodeChunked = new JMenuItem("Decoding request body");
         JMenuItem config = new JMenuItem("Config");
-        JMenuItem sleepClient = new JMenuItem("Sleep send client");
+        JMenuItem sleepClient = new JMenuItem("Sleep chunked sender");
         chunkedMenu.add(encodeChunked);
         chunkedMenu.add(decodeChunked);
         chunkedMenu.add(config);
@@ -99,7 +99,7 @@ public class Menu implements IContextMenuFactory {
             public void actionPerformed(ActionEvent e) {
                 try {
                     IHttpRequestResponse iReqResp = invocation.getSelectedMessages()[0];
-                    SleepSendDlg dlg = new SleepSendDlg(iReqResp);
+                    SleepChunkedDlg dlg = new SleepChunkedDlg(iReqResp);
                     BurpExtender.callbacks.customizeUiComponent(dlg);
                     dlg.setVisible(true);
 

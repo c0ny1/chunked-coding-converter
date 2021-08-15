@@ -1,4 +1,4 @@
-package burp.sleepsend;
+package burp.sleepchunked;
 
 import burp.ChunkedLogTable;
 import burp.IMessageEditor;

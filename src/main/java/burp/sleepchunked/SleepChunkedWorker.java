@@ -1,4 +1,4 @@
-package burp.sleepsend;
+package burp.sleepchunked;
 
 import burp.*;
 
@@ -7,11 +7,11 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-public class SleepSendWorker extends SwingWorker {
+public class SleepChunkedWorker extends SwingWorker {
     private IHttpRequestResponse iReqResp;
     private SleepSendConfig sleepSendConfig;
 
-    public SleepSendWorker(IHttpRequestResponse iReqResp,SleepSendConfig config){
+    public SleepChunkedWorker(IHttpRequestResponse iReqResp, SleepSendConfig config){
         this.iReqResp = iReqResp;
         this.sleepSendConfig = config;
     }
@@ -47,7 +47,7 @@ public class SleepSendWorker extends SwingWorker {
         byte[] byteBody = new byte[body_length];
         System.arraycopy(request, bodyOffset, byteBody, 0, body_length);
 
-        SocketSleepClient socketSleepClient = new SocketSleepClient(url,mapHeaders,byteBody,sleepSendConfig);
+        SleepChunkedSender socketSleepClient = new SleepChunkedSender(url,mapHeaders,byteBody,sleepSendConfig);
         byte[] result = socketSleepClient.send();
         sleepSendConfig.getResponseViewer().setMessage(result, true);
 

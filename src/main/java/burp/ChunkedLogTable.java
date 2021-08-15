@@ -1,6 +1,6 @@
 package burp;
 
-import burp.sleepsend.SleepSendTableModel;
+import burp.sleepchunked.SleepSendTableModel;
 
 import javax.swing.*;
 

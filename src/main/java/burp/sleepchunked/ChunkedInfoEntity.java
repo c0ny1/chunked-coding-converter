@@ -1,11 +1,11 @@
-package burp.sleepsend;
+package burp.sleepchunked;
 
 public class ChunkedInfoEntity {
-    private int id;
-    private byte[] chunkedContent;
-    private int chunkedLen;
-    private int sleepTime;
-    private String status;
+    private int id = -1;
+    private byte[] chunkedContent = new byte[0];
+    private int chunkedLen = 0;
+    private int sleepTime = 0;
+    private String status = "unkown";
 
     public int getId() {
         return id;
