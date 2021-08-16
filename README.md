@@ -14,7 +14,14 @@ mvn package
 
 ![配置](doc/config.png)
 
+延时分块传输
+
+![延时分块传输绕WAF流程](doc/sleep-chunked-bypass-workflow.png)
+
+![延时分块传输](doc/bypass-through-sleep-chunked.png)
+
 ## 相关文章
 * [利用分块传输吊打所有WAF](https://www.anquanke.com/post/id/169738)
 * [在HTTP协议层面绕过WAF](https://www.freebuf.com/news/193659.html)
 * [编写Burp分块传输插件绕WAF](https://mp.weixin.qq.com/s?__biz=Mzg3NjA4MTQ1NQ==&mid=2247483787&idx=1&sn=54c33727696f8ee6d67f997acc11ab89&chksm=cf36f9cbf84170dd7da9b48b3365fb05d7ccec6bdeff480d0c38962f712e400a40b2b38dc467&token=360242838&lang=zh_CN#rd)
+* [Java反序列化数据绕WAF之延时分块传输](https://gv7.me/articles/2021/java-deserialized-data-bypasses-waf-through-sleep-chunked/)

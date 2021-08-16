@@ -57,7 +57,7 @@ public class SleepChunkedDlg extends JDialog {
     public SleepChunkedDlg(final IHttpRequestResponse iReqResp) {
         this.iReqResp = iReqResp;
         this.setLayout(new GridBagLayout());
-        String title = String.format("sleep chunked client (%s)", Util.getUrlFormIReqRsp(this.iReqResp));
+        String title = String.format("sleep chunked sender (%s)", Util.getUrlFormIReqRsp(this.iReqResp));
         this.setTitle(title);
         contentPane = new JPanel();
         GBC gbclist = new GBC(0, 0).setFill(GBC.BOTH).setWeight(100, 100);
