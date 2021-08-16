@@ -6,7 +6,7 @@ public class BurpExtender implements IBurpExtender,IHttpListener,IProxyListener 
     public static IBurpExtenderCallbacks callbacks;
     public static IExtensionHelpers helpers;
     private String extensionName = "Chunked coding converter";
-    private String version ="0.3.0";
+    private String version ="0.4.0";
     public static PrintWriter stdout;
     public static PrintWriter stderr;
 
