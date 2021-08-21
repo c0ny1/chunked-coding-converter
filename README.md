@@ -16,8 +16,6 @@ mvn package
 
 延时分块传输
 
-![延时分块传输绕WAF流程](doc/sleep-chunked-bypass-workflow.png)
-
 ![延时分块传输](doc/bypass-through-sleep-chunked.png)
 
 ## 相关文章
