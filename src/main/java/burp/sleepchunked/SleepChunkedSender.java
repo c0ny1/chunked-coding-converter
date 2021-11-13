@@ -142,7 +142,7 @@ public class SleepChunkedSender {
 
                 // 发送分块内容
                 byte[] chunked = Transfer.joinByteArray(buffer, "\r\n".getBytes());
-                BurpExtender.stdout.println(new String(chunked));
+                //BurpExtender.stdout.println(new String(chunked));
                 chunkeInfoEntity.setChunkedContent(buffer);
                 osw.write(chunked);
                 osw.flush();

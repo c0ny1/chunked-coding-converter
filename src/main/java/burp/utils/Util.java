@@ -193,8 +193,9 @@ public class Util {
         if(max<min){
             throw new Exception("max must be > min");
         }
-        int random = (int) (Math.random()*(max-min)+min);
-        return random;
+        Random random = new Random();
+        int randomNum = random.nextInt(max) % (max - min + 1) + min;
+        return randomNum;
     }
 
 
